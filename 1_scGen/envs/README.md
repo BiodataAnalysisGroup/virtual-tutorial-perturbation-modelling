@@ -42,10 +42,21 @@ sc.pp.log1p(adata)
 
 ### Installation with pip
 
-To install the latest version scGen via pip:
+To install the latest version `scGen` via pip:
 
 ```bash
 pip install scgen
+```
+Optionally, you can install `pertpy`, and load scgen
+
+```bash
+pip install pertpy
+```
+scGen via pertpy
+```python
+import pertpy as pt
+
+pt.tl.Scgen()
 ```
 
 or install the development version via pip:
