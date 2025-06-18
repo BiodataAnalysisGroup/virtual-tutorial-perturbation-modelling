@@ -15,9 +15,9 @@ RUN apt-get update &&  apt-get install -y --no-install-recommends build-essentia
     adduser \
     git \
     wget \
-        zlib1g-dev && \
+    zlib1g-dev && \
     apt-get clean && apt-get purge && \
-        rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Create a non-root user
 ARG USERNAME=mamba
