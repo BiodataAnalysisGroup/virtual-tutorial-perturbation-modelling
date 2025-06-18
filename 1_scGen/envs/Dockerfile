@@ -1,10 +1,5 @@
-# miniconda image
-FROM continuumio/miniconda3:latest
-
-# user
-ARG USERNAME=mamba
-ARG USERID=1000
-RUN adduser --disabled-password --uid $USERID $USERNAME
+# miniforge image
+FROM condaforge/miniforge3
 
 # set up environment (reduce package overhead)
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -13,30 +8,34 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     SCGEN_HOME=/opt/scgen \
-    PATH=/opt/conda/envs/scgen/bin:$PATH
+    PATH=/opt/conda/bin:$PATH
 
 # install dependencies
 RUN apt-get update &&  apt-get install -y --no-install-recommends build-essential \
-	git \
-	libgl1-mesa-glx \
-	gfortran \
-	zlib1g-dev && \
-	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    adduser \
+    git \
+    wget \
+        zlib1g-dev && \
+    apt-get clean && apt-get purge && \
+        rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Create a non-root user
+ARG USERNAME=mamba
+ARG USERID=1001
+RUN adduser --disabled-password --uid $USERID $USERNAME
 
 # workspace
-RUN mkdir -p $SCGEN_HOME && chown -R $USERNAME:$USERNAME $SCGEN_HOME
+RUN mkdir -p $SCGEN_HOME
 WORKDIR $SCGEN_HOME
 
 # (always specify exact version for python packages)
 COPY --chown=$USERNAME:$USERNAME . .
 
 # create conda env
-RUN conda env create -f environment.yml
-
-# python shell
-SHELL ["conda", "run", "-n", "scgen", "/bin/bash", "-c"]
+RUN conda create -n scgen python=3.12 && conda run -n scgen pip install .
+ENV PATH=/opt/conda/envs/scgen/bin:$PATH
 
 # jupyter notebook
 EXPOSE 8888
 #CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
-CMD ["python", "test/test_scgen.py"]
+CMD ["python", "tests/test_scgen.py"]
