@@ -38,4 +38,4 @@ ENV PATH=/opt/conda/envs/scgen/bin:$PATH
 # jupyter notebook
 EXPOSE 8888
 #CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
-CMD ["python", "tests/test_scgen.py"]
+CMD ["python", "workdir/scGen_Tutorial_ECCB2025.ipynb"]
