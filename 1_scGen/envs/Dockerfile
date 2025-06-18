@@ -32,10 +32,12 @@ WORKDIR $SCGEN_HOME
 COPY --chown=$USERNAME:$USERNAME . .
 
 # create conda env
-RUN conda create -n scgen python=3.12 && conda run -n scgen pip install scgen scanpy scvi
+RUN conda create -n scgen python=3.12 && conda run -n scgen pip install scgen scanpy scvi pertpy
 ENV PATH=/opt/conda/envs/scgen/bin:$PATH
 
 # jupyter notebook
 EXPOSE 8888
-#CMD ["jupyter", "notebook", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
-CMD ["python", "workdir/scGen_Tutorial_ECCB2025.ipynb"]
+# if you wnat to run the notebook interactively, please use the following:
+# CMD ["jupyter", "notebook", "workdir/scGen_Tutorial_ECCB2025.ipynb", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]  
+# or, non-interactively in a terminal, please run:
+CMD ["jupyter", "nbconvert", "--to", "notebook", "--execute", "--inplace", "workdir/scGen_Tutorial_ECCB2025.ipynb"]
