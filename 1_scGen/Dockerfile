@@ -32,7 +32,7 @@ WORKDIR $SCGEN_HOME
 COPY --chown=$USERNAME:$USERNAME . .
 
 # create conda env
-RUN conda create -n scgen python=3.12 && conda run -n scgen pip install scgen scanpy scvi pertpy
+RUN conda create -n scgen python=3.12 && conda run -n scgen pip install scgen[tutorials] scvi pertpy
 # RUN conda env create -f environment.yml
 
 # jupyter notebook
