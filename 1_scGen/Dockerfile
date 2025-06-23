@@ -33,7 +33,7 @@ COPY --chown=$USERNAME:$USERNAME . .
 
 # create conda env
 RUN conda create -n scgen python=3.12 && conda run -n scgen pip install scgen scanpy scvi pertpy
-ENV PATH=/opt/conda/envs/scgen/bin:$PATH
+# RUN conda env create -f environment.yml
 
 # jupyter notebook
 EXPOSE 8888
