@@ -1,46 +1,14 @@
-name: scgen_tutorial
-
+name: scgen
 channels:
-  - conda-forge      
-  - bioconda         
-  - pytorch          
-  - defaults         
-
+    - conda-forge
+    - bioconda
 dependencies:
-  # ─── Core interpreter ───────────────────────────────────────────────
-  - python = 3.11
-
-  # ─── Base scientific / plotting stack ───────────────────────────────
-  - numpy
-  - pandas
-  - scipy
-  - scikit-learn
-  - matplotlib
-  - seaborn
-  - jinja2
-
-  # ─── Deep-learning backend ──────────────────────────────────────────
-  # CPU-only build (runs everywhere):
-  - pytorch
-  # GPU build (comment the line above **and** uncomment the two below):
-  # - pytorch  *cuda
-  # - pytorch-cuda
-
-  - pytorch-lightning
-  - torchmetrics
-
-  # ─── Single-cell ecosystem ──────────────────────────────────────────
-  - scanpy
-  - anndata
-  - scvi-tools             
-  - pertpy                 
-
-  # ─── Hyper-parameter optimisation ───────────────────────────────────
-  - optuna
-
-  # ─── Notebook support ───────────────────────────────────────────────
-  - jupyter
-  - ipykernel
-
-  # ─── Misc ───────────────────────────────────────────────────────────
-  - pip                    
+    - python=3.12
+    - pip
+    - pip:
+        - scanpy
+        - scvi-tools
+        - pertpy
+        - scgen
+prefix: /home/g0bi/miniforge3/envs/scgen
+#please edit the above line to your conda installation

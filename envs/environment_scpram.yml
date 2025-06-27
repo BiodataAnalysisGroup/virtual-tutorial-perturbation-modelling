@@ -1,47 +1,9 @@
-name: scpram_tutorial
-
+name: scpram
 channels:
-  - conda-forge      # primary source
-  - bioconda         # bio-packages that rely on conda-forge
-  - pytorch          # official PyTorch wheels
-  - defaults         # fallback
-
+  - conda-forge
+  - bioconda
 dependencies:
-  # ─── Core interpreter ─────────────────────────────────────────────
-  - python = 3.8                 # required by scPRAM’s pin to Scanpy 1.9.3
-
-  # ─── Base scientific / plotting stack ────────────────────────────
-  - numpy =1.23.5                # last NumPy fully compatible with torch 1.13
-  - pandas
-  - scipy
-  - scikit-learn
-  - matplotlib
-  - seaborn
-  - jinja2                       # ≥3.1 so DataFrame.style works
-
-  # ─── Deep-learning backend (exact pins from scPRAM docs) ──────────
-  - pytorch =1.13.1              # CPU build
-  # GPU build: comment the line above **and** uncomment both lines ↓
-  # - pytorch =1.13.1=*cuda*
-  # - pytorch-cuda =11.7         # match your driver / hardware
-  - pytorch-lightning =1.9.*     # last PL that supports torch 1.13
-  - torchmetrics                 # metrics helper used by PL
-
-  # ─── Single-cell stack matching scPRAM requirements ───────────────
-  - scanpy =1.9.3                # fixed by scPRAM
-  - anndata >=0.8,<0.10
-  - scvi-tools =0.20.*           # last scvi-tools built for torch 1.13
-
-  # ─── Hyper-parameter optimisation (optional) ──────────────────────
-  - optuna
-
-  # ─── Notebook support ────────────────────────────────────────────
-  - jupyter
-  - ipykernel
-
-  # ─── Misc ─────────────────────────────────────────────────────────
+  - python=3.8
   - pip
-
-  # ─── pip-only packages (scPRAM itself) ────────────────────────────
   - pip:
-      - scpram==0.0.3            # includes adjustText 0.7 & POT 0.9.1
+    - scpram
