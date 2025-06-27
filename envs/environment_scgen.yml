@@ -10,5 +10,3 @@ dependencies:
         - scvi-tools
         - pertpy
         - scgen
-prefix: /home/g0bi/miniforge3/envs/scgen
-#please edit the above line to your conda installation
