@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
-# git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-# cd virtual-tutorial-pereturbation-modelling/
 
-# Environmental setup script for MacOS/Linux
+#git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+#cd virtual-tutorial-pereturbation-modelling/
+
+## data avaialble on Zenodo:
+# Gavriilidis, G., & Jagot, S. (2025). Perturbation_modelling_tutorial_ECCB2025 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15745452
+echo "Data is downloading from zenodo..."
+curl -o ./data/Kang.zip https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1
+unzip -u data/kang.zip -d data/
+
+## Environmental setup script for MacOS/Linux
 # For Windows, please refer the README section
-
 # Python3 and Pip
-python --version		# verify your python installation
-pip --version
-which python
-which pip
+echo "$(python --version) is installed in the location $(which python)"
+echo "$(pip --version) is installed in the location $(which pip)"
+
 # if you get an error, try installing latest version of python from the (official website)[https://www.python.org/downloads/]
 
 ## install Miniconda
 # Please refer this (site)[https://www.anaconda.com/docs/getting-started/miniconda/install] for any quries
-
+echo "Installing Miniconda ..."
 set -e
 
 OS=$(uname -s)
@@ -44,7 +49,10 @@ bash "$MINICONDA_DIR/miniconda.sh" -b -u -p "$MINICONDA_DIR"
 rm "$MINICONDA_DIR/miniconda.sh"
 source "$MINICONDA_DIR/bin/activate"
 
-# Parallel environment creation (may cause cache conflicts if environments share packages)
+## Conda environment setup
+conda clean --all -y
 conda env create -f envs/environment_scgen.yml &
 conda env create -f envs/environment_scpram.yml &
 wait
+
+echo "Environment setup complete successfully...!"
