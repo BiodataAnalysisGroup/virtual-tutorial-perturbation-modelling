@@ -3,24 +3,26 @@
 #git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
 #cd virtual-tutorial-pereturbation-modelling/
 
-## data avaialble on Zenodo:
+## Data avaialble on Zenodo:
 # Gavriilidis, G., & Jagot, S. (2025). Perturbation_modelling_tutorial_ECCB2025 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15745452
 echo "Data is downloading from zenodo..."
-curl -o ./data/Kang.zip https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1
+mkdir -p data
+curl -L -o ./data/Kang.zip https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1
 unzip -u data/kang.zip -d data/
 
 ## Environmental setup script for MacOS/Linux
 # For Windows, please refer the README section
+
 # Python3 and Pip
-echo "$(python --version) is installed in the location $(which python)"
-echo "$(pip --version) is installed in the location $(which pip)"
+echo "$(python --version) is installed ✔️ & available in the location: $(which python)"
+echo "$(pip --version) is installed ✔️ & available in the location: $(which pip)"
 
 # if you get an error, try installing latest version of python from the (official website)[https://www.python.org/downloads/]
 
 ## install Miniconda
 # Please refer this (site)[https://www.anaconda.com/docs/getting-started/miniconda/install] for any quries
 echo "Installing Miniconda ..."
-set -e
+set -euo pipefail
 
 OS=$(uname -s)
 ARCH=$(uname -m)
@@ -38,7 +40,7 @@ case "$OS" in
         URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
         ;;
     *)
-        echo "This OS is currently unsupported"
+	    echo "This OS is currently unsupported ✖️ (For Windows, please refer README.md)"
         exit 1
         ;;
 esac
@@ -55,4 +57,28 @@ conda env create -f envs/environment_scgen.yml &
 conda env create -f envs/environment_scpram.yml &
 wait
 
-echo "Environment setup complete successfully...!"
+echo "Environment setup complete!(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
+
+# Running scGen
+read -p "Do you want to run scGen?" ans
+case "$ans" in
+	[Yy]|[Yy][Ee][Ss])
+		conda activate scgen && jupyter notebook 1_scGen/scGen_Tutorial_ECCB2025.ipynb
+		;;
+	[Nn]|[Nn][Oo])
+		echo "Please open jupyter-notebook in your browser and run scGen_Tutorial_ECCB2025.ipynb"
+		;;
+esac
+
+# Running scPRAM
+read -p "Do you want to run scPRAM?" ans
+case "$ans" in
+	[Yy]|[Yy][Ee][Ss])
+		conda activate scpram && jupyter notebook 1_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
+		;;
+	[Nn]|[Nn][Oo])
+		echo "Please open jupyter-notebook in your browser and run scPRAM_Tutorial_ECCB2025.ipynb"
+		;;
+esac
+
+echo "Have a lots of fun!... (^_^)"
