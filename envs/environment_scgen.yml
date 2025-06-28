@@ -1,12 +1,12 @@
 name: scgen
 channels:
-    - conda-forge
-    - bioconda
+  - conda-forge
+  - bioconda
 dependencies:
-    - python=3.12
-    - pip
-    - pip:
-        - scanpy
-        - scvi-tools
-        - pertpy
-        - scgen
+  - python=3.12
+  - scanpy
+  - scvi-tools
+  - pertpy
+  - pip
+  - pip:
+      - scgen
