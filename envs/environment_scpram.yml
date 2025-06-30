@@ -4,6 +4,9 @@ channels:
   - bioconda
 dependencies:
   - python=3.8
+  - optuna
+  - jupyterlab      
+  - ipywidgets  
   - pip
   - pip:
       - scpram
