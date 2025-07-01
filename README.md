@@ -41,9 +41,15 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    ```powershell
     Invoke-WebRequest `
     "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1" `
-    -OutFile .\data\perturbations.zip
-    Expand-Archive -Path .\data\perturbations.zip -DestinationPath .\data -Force
-    Remove-Item     .\data\perturbations.zip
+    -OutFile ".\data\zenodo_perturbations_ECCB2025.zip"
+    $zipPath = ".\data\zenodo_perturbations_ECCB2025.zip"
+    $tempDir = ".\data\_tmp_zip"
+    Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
+    $innerRoot = Join-Path $tempDir "zenodo_perturbations_ECCB2025"
+    Get-ChildItem -Path $innerRoot -Force | Move-Item -Destination ".\data" -Force
+    Remove-Item $tempDir           -Recurse -Force
+    Remove-Item ".\data\__MACOSX"  -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item $zipPath -Force
    ```
     If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
 
