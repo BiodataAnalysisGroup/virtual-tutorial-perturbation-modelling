@@ -50,15 +50,20 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 4. **Install Miniconda** (light‑weight Python distribution).
 
    ```powershell
-   curl -L -o miniconda.exe "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe"
-   Start-Process .\miniconda.exe -ArgumentList "/S /D=%UserProfile%\Miniconda3" -Wait
-   Remove-Item miniconda.exe
-   # initialise Conda for PowerShell
-   & "%UserProfile%\Miniconda3\Scripts\conda.exe" init powershell
+    Invoke-WebRequest `
+    "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" `
+    -OutFile ".\Miniconda3-latest-Windows-x86_64.exe"
+    Start-Process -FilePath ".\Miniconda3-latest-Windows-x86_64.exe" `
+                -ArgumentList "/InstallationType=JustMe", "/AddToPath=0", `
+                                "/RegisterPython=0", "/S", `
+                                "/D=$env:UserProfile\Miniconda3" `
+                -Wait
+    Remove-Item ".\Miniconda3-latest-Windows-x86_64.exe"
+    & "$env:UserProfile\Miniconda3\Scripts\conda.exe" init powershell # initialise Conda for PowerShell
    exit   # close PowerShell, then reopen it so 'conda' is on your PATH
    ```
 
-5. **Create the two tutorial environments.**  Each takes \~2–4 min.
+5. Reopen Powershell (press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter*) and **create the two tutorial environments.**  Each takes \~2–4 min.
 
    ```powershell
    cd virtual-tutorial-perturbation-modelling  # if you are not already inside
