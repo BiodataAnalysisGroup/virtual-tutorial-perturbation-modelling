@@ -39,10 +39,13 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 3. **Download the data (≈850 MB)** into the `data/` directory.
 
    ```powershell
-   curl -L -o .\data\perturbations.zip "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1"
-   Expand-Archive -Path .\data\perturbations.zip -DestinationPath .\data\ -Force
-   Remove-Item .\data\perturbations.zip
+    Invoke-WebRequest `
+    "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1" `
+    -OutFile .\data\perturbations.zip
+    Expand-Archive -Path .\data\perturbations.zip -DestinationPath .\data -Force
+    Remove-Item     .\data\perturbations.zip
    ```
+    If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
 
 4. **Install Miniconda** (light‑weight Python distribution).
 
