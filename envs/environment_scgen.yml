@@ -4,7 +4,8 @@ channels:
   - bioconda             
 dependencies:
   - python=3.11
-  - scanpy
+  - scanpy=1.9.3
+  - anndata=0.10.8 
   - scvi-tools=0.14.6
   - optuna
   - scipy<1.16
@@ -15,7 +16,7 @@ dependencies:
   - pip
   - pip:
       - scikit-misc
-      - pertpy
+      - pertpy==1.0.0 
       - "jax[cpu]==0.6.2"
       - numpyro==0.18.0
       - setuptools<=59.5 
