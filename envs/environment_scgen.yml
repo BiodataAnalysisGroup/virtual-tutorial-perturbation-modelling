@@ -7,11 +7,7 @@ dependencies:
   - scanpy
   - scvi-tools
   - optuna    
-  - scipy>=1.8,<2              
+  - pertpy            
   - jupyterlab           
   - ipywidgets           
   - pip
-  - pip:
-      - scgen==2.1.0
-      - pertpy==1.0.0
-      - scikit-misc==0.5.1
