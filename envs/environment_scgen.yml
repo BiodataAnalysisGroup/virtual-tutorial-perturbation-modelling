@@ -7,7 +7,10 @@ dependencies:
   - scanpy
   - scvi-tools
   - optuna    
-  - pertpy            
+  - scipy>=1.8,<2              
   - jupyterlab           
   - ipywidgets           
   - pip
+  - pip:
+      - scikit-misc
+      - pertpy
