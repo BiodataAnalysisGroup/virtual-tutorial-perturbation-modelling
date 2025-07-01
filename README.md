@@ -70,7 +70,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    ```
    If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
 
-5. Reopen Powershell (press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter*) and **create the two tutorial environments.**  Each takes \~2–4 min.
+5. Open the newly-installed Anaconda PowerShell Prompt (press <kbd>⊞ Win</kbd>, type “Anaconda PowerShell Prompt” and hit ⏎ *enter*) and **create the two tutorial environments.**
 
    ```powershell
    cd virtual-tutorial-perturbation-modelling  # if you are not already inside
