@@ -22,7 +22,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 1. **Install Git** (required to download this repository):
 
    ```powershell
-   winget install --id Git.Git -e --source winget
+    winget install --id Git.Git -e --source winget
    ```
 
    Close & reopen PowerShell once it finishes.
@@ -30,11 +30,11 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 2. **Clone the repository** (creates a new folder `virtual‑tutorial‑perturbation‑modelling`):
 
    ```powershell
-   git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-   cd virtual-tutorial-perturbation-modelling
+    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+    cd virtual-tutorial-perturbation-modelling
    ```
 
-   > No Git? Grab a ZIP instead: [https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip](https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip), then **right‑click ▸ Extract All…** and continue in that folder.
+    > No Git? Grab a ZIP instead: [https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip](https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip), then **right‑click ▸ Extract All…** and continue in that folder.
 
 3. **Download the data (≈850 MB)** into the `data/` directory:
 
@@ -51,7 +51,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
     Remove-Item ".\data\__MACOSX"  -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item $zipPath -Force
    ```
-    If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
+    > If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
 
 4. **Install Miniconda** (light‑weight Python distribution):
 
@@ -66,24 +66,24 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
                 -Wait
     Remove-Item ".\Miniconda3-latest-Windows-x86_64.exe"
     & "$env:UserProfile\Miniconda3\Scripts\conda.exe" init powershell # initialise Conda for PowerShell
-    exit   # close PowerShell, then reopen it so 'conda' is on your PATH
+    exit   # close PowerShell, then open the Anaconda PowerShell Prompt
    ```
-   If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
+    > If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
 
 5. Open the newly-installed Anaconda PowerShell Prompt (press <kbd>⊞ Win</kbd>, type “Anaconda PowerShell Prompt” and hit ⏎ *enter*) and **create the two tutorial environments**:
 
    ```powershell
-   cd virtual-tutorial-perturbation-modelling  # if you are not already inside
-   conda env create -f envs\environment_scgen.yml
-   conda env create -f envs\environment_scpram.yml
+    cd virtual-tutorial-perturbation-modelling  # if you are not already inside
+    conda env create -f envs\environment_scgen.yml
+    conda env create -f envs\environment_scpram.yml
    ```
 
 6. **Run the notebooks:** Still using the Anaconda PowerShell Prompt, inside the `virtual-tutorial-perturbation-modelling` directory, open *one* environment at a time:
 
    ```powershell
    # to explore the scGen notebook
-   conda activate scgen
-   jupyter notebook
+    conda activate scgen
+    jupyter notebook
    # a browser tab opens – double‑click notebooks/scGen_Tutorial_ECCB2025.ipynb
    ```
 
@@ -102,10 +102,10 @@ These systems can run an *automated* script that installs everything in one shot
 3. **Clone the repository** & run the installer:
 
    ```bash
-   git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-   cd virtual-tutorial-perturbation-modelling
-   chmod +x install_requirements.sh
-   ./install_requirements.sh
+    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+    cd virtual-tutorial-perturbation-modelling
+    chmod +x install_requirements.sh
+    ./install_requirements.sh
    ```
 
    The script will
@@ -116,8 +116,8 @@ These systems can run an *automated* script that installs everything in one shot
       Answer **Y** when prompted to launch Jupyter automatically; otherwise run:
 
    ```bash
-   conda activate scgen   # or: conda activate scpram
-   jupyter notebook
+    conda activate scgen   # or: conda activate scpram
+    jupyter notebook
    ```
 
 ---
