@@ -62,6 +62,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
     & "$env:UserProfile\Miniconda3\Scripts\conda.exe" init powershell # initialise Conda for PowerShell
     exit   # close PowerShell, then reopen it so 'conda' is on your PATH
    ```
+   If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
 
 5. Reopen Powershell (press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter*) and **create the two tutorial environments.**  Each takes \~2–4 min.
 
