@@ -17,7 +17,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 
 ### Windows 10 / 11 (Pro or Home)
 
-> The commands below work in the standard **PowerShell** that ships with Windows. Press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter*.
+> The commands below work in the standard **PowerShell** that ships with Windows. Press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter* to open it. Then copy & paste each of the commands below, one by one, into the PowerShell window and hit ⏎ *enter* after each.
 
 1. **Install Git** – required to download this repository.
 
