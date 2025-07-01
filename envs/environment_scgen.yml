@@ -5,12 +5,15 @@ channels:
 dependencies:
   - python=3.11
   - scanpy
-  - scvi-tools
+  - scvi-toolss=0.14.6
   - optuna
-  - scipy<1.16              
+  - scipy<1.16
+  - pytorch-lightning=1.3.8
+  - torchmetrics<0.8              
   - jupyterlab           
   - ipywidgets           
   - pip
   - pip:
       - scikit-misc
       - pertpy
+      - setuptools<=59.5 
