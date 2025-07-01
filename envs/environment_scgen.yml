@@ -11,5 +11,6 @@ dependencies:
   - ipywidgets           
   - pip
   - pip:
-      - scgen
-      - pertpy
+      - scgen==2.1.0
+      - pertpy==1.0.0
+      - scikit-misc==0.5.1
