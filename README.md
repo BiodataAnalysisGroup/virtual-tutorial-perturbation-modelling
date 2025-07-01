@@ -60,7 +60,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
                 -Wait
     Remove-Item ".\Miniconda3-latest-Windows-x86_64.exe"
     & "$env:UserProfile\Miniconda3\Scripts\conda.exe" init powershell # initialise Conda for PowerShell
-   exit   # close PowerShell, then reopen it so 'conda' is on your PATH
+    exit   # close PowerShell, then reopen it so 'conda' is on your PATH
    ```
 
 5. Reopen Powershell (press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter*) and **create the two tutorial environments.**  Each takes \~2–4 min.
