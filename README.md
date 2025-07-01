@@ -83,7 +83,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    ```powershell
    # to explore the scGen notebook
     conda activate scgen
-    jupyter notebook
+    jupyter-lab
    # a browser tab opens – double‑click notebooks/scGen_Tutorial_ECCB2025.ipynb
    ```
 
