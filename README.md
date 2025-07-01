@@ -19,7 +19,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 
 > The commands below work in the standard **PowerShell** that ships with Windows. Press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter* to open it. Then copy & paste each of the commands below, one by one, into the PowerShell window and hit ⏎ *enter* after each.
 
-1. **Install Git** – required to download this repository.
+1. **Install Git** (required to download this repository):
 
    ```powershell
    winget install --id Git.Git -e --source winget
@@ -27,7 +27,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 
    Close & reopen PowerShell once it finishes.
 
-2. **Clone the repository** (creates a new folder `virtual‑tutorial‑perturbation‑modelling`).
+2. **Clone the repository** (creates a new folder `virtual‑tutorial‑perturbation‑modelling`):
 
    ```powershell
    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
@@ -36,7 +36,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
 
    > No Git? Grab a ZIP instead: [https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip](https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip), then **right‑click ▸ Extract All…** and continue in that folder.
 
-3. **Download the data (≈850 MB)** into the `data/` directory.
+3. **Download the data (≈850 MB)** into the `data/` directory:
 
    ```powershell
     Invoke-WebRequest `
@@ -53,7 +53,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    ```
     If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
 
-4. **Install Miniconda** (light‑weight Python distribution).
+4. **Install Miniconda** (light‑weight Python distribution):
 
    ```powershell
     Invoke-WebRequest `
@@ -70,7 +70,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    ```
    If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
 
-5. Open the newly-installed Anaconda PowerShell Prompt (press <kbd>⊞ Win</kbd>, type “Anaconda PowerShell Prompt” and hit ⏎ *enter*) and **create the two tutorial environments.**
+5. Open the newly-installed Anaconda PowerShell Prompt (press <kbd>⊞ Win</kbd>, type “Anaconda PowerShell Prompt” and hit ⏎ *enter*) and **create the two tutorial environments**:
 
    ```powershell
    cd virtual-tutorial-perturbation-modelling  # if you are not already inside
@@ -78,7 +78,7 @@ Follow the steps for **your operating system only**. Everything is copy‑&‑pa
    conda env create -f envs\environment_scpram.yml
    ```
 
-6. **Run the notebooks.**  Open *one* environment at a time:
+6. **Run the notebooks:** Still using the Anaconda PowerShell Prompt, inside the `virtual-tutorial-perturbation-modelling` directory, open *one* environment at a time:
 
    ```powershell
    # to explore the scGen notebook
