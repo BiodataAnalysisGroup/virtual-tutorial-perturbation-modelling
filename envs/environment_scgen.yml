@@ -16,4 +16,6 @@ dependencies:
   - pip:
       - scikit-misc
       - pertpy
+      - "jax[cpu]==0.6.2"
+      - numpyro==0.18.0
       - setuptools<=59.5 
