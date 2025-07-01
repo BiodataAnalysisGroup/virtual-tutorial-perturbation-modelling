@@ -6,7 +6,8 @@ dependencies:
   - python=3.11
   - scanpy
   - scvi-tools
-  - optuna             
+  - optuna
+  - scipy<1.16              
   - jupyterlab           
   - ipywidgets           
   - pip
