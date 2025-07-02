@@ -139,7 +139,23 @@ conda env create -f envs/environment_scpram.yml
 ```
 
 ```bash
-# F) launch Jupyter
+# F) (optional) enable GPU acceleration
+if command -v nvidia-smi &>/dev/null; then
+  echo "🔍 NVIDIA GPU found – installing CUDA PyTorch inside both envs"
+  DRIVER=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
+  CUDA_VER=$( (( DRIVER >= 525 )) && echo 12.1 || echo 11.8 )
+  for ENV in scgen scpram; do
+      conda activate "$ENV"
+      conda install -y pytorch pytorch-cuda=$CUDA_VER -c pytorch -c nvidia
+      conda deactivate
+  done
+else
+  echo "ℹ️  No NVIDIA GPU detected – skipping CUDA install."
+fi
+```
+
+```bash
+# G) launch Jupyter
 conda activate scgen   # swap to scpram to explore the other notebook
 jupyter-lab
 ```
@@ -150,19 +166,19 @@ jupyter-lab
 
 | task                       | command                                                    |
 | -------------------------- | ---------------------------------------------------------- |
-| Launch **scGen** notebook  | `conda activate scgen && jupyter notebook`                 |
-| Launch **scPRAM** notebook | `conda activate scpram && jupyter notebook`                |
+| Launch **scGen** notebook  | `conda activate scgen && jupyter-lab`                 |
+| Launch **scPRAM** notebook | `conda activate scpram && jupyter-lab`                |
 | Stop Jupyter               | press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal         |
 | Update envs later          | `conda env update -n scgen  -f envs/environment_scgen.yml` |
 
-Navigate in the Jupyter file‑browser to `notebooks/`, open a tutorial and execute cells from top to bottom. Each notebook is **stand‑alone** – you can jump directly to benchmarking if you prefer.
+Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrmaking/`, open a notebook and execute cells from top to bottom. Each notebook is **stand‑alone** – you can jump directly to benchmarking if you prefer.
 
 ---
 
 ## ❓ Troubleshooting
 
 * **`conda: command not found`** – close & reopen the terminal (Conda adds itself to your shell profile).
-* **Port 8888 already in use** – run `jupyter notebook --port 8889` (any free port works).
+* **Port 8888 already in use** – run `jupyter-lab --port 8889` (any free port works).
 * **Web‑browser does not open automatically** – copy the full `http://localhost:8888/?token=…` link printed in the terminal into your browser.
 
 If you are stuck, open an issue on the GitHub page or ask during the workshop (on July 14th 2025) – we are happy to help!

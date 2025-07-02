@@ -88,7 +88,29 @@ wait
 info "   ✔️  Environments created."
 
 # ────────────────────────────────
-# 4) optional: launch notebooks
+# 4) auto-install GPU PyTorch if an NVIDIA card is present
+# ────────────────────────────────
+if command -v nvidia-smi &>/dev/null; then
+    info "⚙️  NVIDIA GPU detected – installing CUDA-enabled PyTorch …"
+    # Pick the toolkit version that matches the driver (12.x → CUDA 12, else 11.8)
+    DRIVER_MAJOR=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
+    if (( DRIVER_MAJOR >= 525 )); then
+        CUDA_VER="12.1"
+    else
+        CUDA_VER="11.8"
+    fi
+    for ENV in scgen scpram; do
+        conda activate "$ENV"
+        conda install -y pytorch pytorch-cuda=$CUDA_VER -c pytorch -c nvidia
+        conda deactivate
+    done
+    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER)."
+else
+    warn "ℹ️  No NVIDIA GPU found – keeping CPU-only PyTorch."
+fi
+
+# ────────────────────────────────
+# 5) optional: launch notebooks
 # ────────────────────────────────
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
