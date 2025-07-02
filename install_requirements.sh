@@ -19,6 +19,20 @@ echo "$(pip --version) is installed ✔️ & available in the location: $(which 
 
 # if you get an error, try installing latest version of python from the (official website)[https://www.python.org/downloads/]
 
+# BEFORE downloading/installing Miniconda...
+if command -v conda >/dev/null; then
+    echo "⚠️  Conda already found at: $(command -v conda)"
+    read -p "Reuse this Conda instead of installing a new one? [Y/n] " ans
+    if [[ ! $ans =~ ^[Nn]$ ]]; then
+        source "$(conda info --base)/etc/profile.d/conda.sh"
+        SKIP_CONDA_INSTALL=true
+    fi
+fi
+...
+if [[ -z ${SKIP_CONDA_INSTALL:-} ]]; then
+    # run the installer exactly as before
+fi
+
 ## install Miniconda
 # Please refer this (site)[https://www.anaconda.com/docs/getting-started/miniconda/install] for any quries
 echo "Installing Miniconda ..."
