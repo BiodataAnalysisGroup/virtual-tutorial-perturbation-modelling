@@ -13,87 +13,59 @@ Absolute beginners are welcome — the instructions below assume **zero prior e
 
 ## 🛠️ Installation
 
-Follow the steps for **your operating system only**. Everything is copy‑&‑paste‑ready.
+Follow the steps for **your operating system only** — you will end up with two ready‑to‑use Conda environments called **`scgen`** and **`scpram`** plus a local copy of the tutorial data.
 
-### Windows 10 / 11 (Pro or Home)
+> **Tip for first‑timers:**
+> Copy a command → click inside your terminal → **right‑click → paste** → hit ⏎ *enter*.
+> Run the commands **one at a time** and wait until each finishes.
 
-> The commands below work in the standard **PowerShell** that ships with Windows. Press <kbd>⊞ Win</kbd>, type “PowerShell” and hit ⏎ *enter* to open it. Then copy & paste each of the commands below, one by one, into the PowerShell window and hit ⏎ *enter* after each.
+### 1. Windows 10/11 (Home or Pro) — via **WSL 2**
 
-1. **Install Git** (required to download this repository):
+The simplest path on Windows is to let Microsoft’s **Windows Subsystem for Linux 2
+(WSL 2)** run a tiny Ubuntu Linux under the hood and then follow the same
+one‑click installer we use on macOS & Linux.
 
-   ```powershell
-    winget install --id Git.Git -e --source winget
-   ```
+1. **Enable WSL 2 and install Ubuntu (one‑off, ≈3 min)**
 
-   Close & reopen PowerShell once it finishes.
-
-2. **Clone the repository** (creates a new folder `virtual‑tutorial‑perturbation‑modelling`):
-
-   ```powershell
-    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-    cd virtual-tutorial-perturbation-modelling
-   ```
-
-    > No Git? Grab a ZIP instead: [https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip](https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling/archive/refs/heads/main.zip), then **right‑click ▸ Extract All…** and continue in that folder.
-
-3. **Download the data (≈850 MB)** into the `data/` directory:
+   Open *PowerShell as Administrator* and paste:
 
    ```powershell
-    Invoke-WebRequest `
-    "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1" `
-    -OutFile ".\data\zenodo_perturbations_ECCB2025.zip"
-    $zipPath = ".\data\zenodo_perturbations_ECCB2025.zip"
-    $tempDir = ".\data\_tmp_zip"
-    Expand-Archive -Path $zipPath -DestinationPath $tempDir -Force
-    $innerRoot = Join-Path $tempDir "zenodo_perturbations_ECCB2025"
-    Get-ChildItem -Path $innerRoot -Force | Move-Item -Destination ".\data" -Force
-    Remove-Item $tempDir           -Recurse -Force
-    Remove-Item ".\data\__MACOSX"  -Recurse -Force -ErrorAction SilentlyContinue
-    Remove-Item $zipPath -Force
-   ```
-    > If you run into an error, you can also download the data manually from [https://zenodo.org/records/15745452](https://zenodo.org/records/15745452) and unpack it into the `data/` folder.
-
-4. **Install Miniconda** (light‑weight Python distribution):
-
-   ```powershell
-    Invoke-WebRequest `
-    "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" `
-    -OutFile ".\Miniconda3-latest-Windows-x86_64.exe"
-    Start-Process -FilePath ".\Miniconda3-latest-Windows-x86_64.exe" `
-                -ArgumentList "/InstallationType=JustMe", "/AddToPath=0", `
-                                "/RegisterPython=0", "/S", `
-                                "/D=$env:UserProfile\Miniconda3" `
-                -Wait
-    Remove-Item ".\Miniconda3-latest-Windows-x86_64.exe"
-    & "$env:UserProfile\Miniconda3\Scripts\conda.exe" init powershell # initialise Conda for PowerShell
-    exit   # close PowerShell, then open the Anaconda PowerShell Prompt
-   ```
-    > If you run into an error, you can also download the installer manually from [https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe](https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe) and run it. Make sure to select the option to add Miniconda to your PATH.
-
-5. Open the newly-installed Anaconda PowerShell Prompt (press <kbd>⊞ Win</kbd>, type “Anaconda PowerShell Prompt” and hit ⏎ *enter*) and **create the two tutorial environments**:
-
-   ```powershell
-    cd virtual-tutorial-perturbation-modelling  # if you are not already inside
-    conda env create -f envs\environment_scgen.yml
-    conda env create -f envs\environment_scpram.yml
+   wsl --install
    ```
 
-6. **Run the notebooks:** Still using the Anaconda PowerShell Prompt, inside the `virtual-tutorial-perturbation-modelling` directory, open *one* environment at a time:
+   Reboot when prompted.
+   After the reboot Windows finishes downloading Ubuntu; choose a **username**
+   (e.g. `tutorial`) and **password** when the black “Ubuntu” window appears.
 
-   ```powershell
-   # to explore the scGen notebook
-    conda activate scgen
-    jupyter-lab
-   # a browser tab opens – double‑click notebooks/scGen_Tutorial_ECCB2025.ipynb
+2. **Open Ubuntu** (look for *“Ubuntu”* in the Start menu) and install **Git**:
+
+   ```bash
+   sudo apt update && sudo apt install git -y
    ```
 
-   Use <kbd>Ctrl+↵ Enter</kbd> to execute a cell. When done, close Jupyter, `conda deactivate`, then `conda activate scpram` to try the second tool.
+3. **Clone the repository & run the auto‑installer inside WSL:**
+
+   ```bash
+   git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+   cd virtual-tutorial-perturbation-modelling
+   chmod +x install_requirements.sh
+   ./install_requirements.sh
+   ```
+
+   The script
+
+   * installs **Miniconda** under `~/miniconda3`,
+   * creates the **`scgen`** and **`scpram`** environments,
+   * downloads & unpacks the Kang 2018 tutorial data into `data/`.
+
+   When it finishes you can already launch Jupyter (answer **Y** when asked) or
+   see *Usage* further below.
 
 ---
 
-### macOS (12 Monterey +) & Linux (Ubuntu 20.04 +)
+### 2. macOS (12 Monterey +) & native **Linux** (Ubuntu 20.04 +)
 
-These systems can run an *automated* script that installs everything in one shot.
+Exactly the same steps as inside WSL:
 
 1. **Open Terminal** (⌘‑Space ▸ Terminal on macOS; <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> on Linux).
 2. **Install Git** if missing:
@@ -108,17 +80,48 @@ These systems can run an *automated* script that installs everything in one shot
     ./install_requirements.sh
    ```
 
-   The script will
-
-   1. install **Miniconda** (locally under `~/miniconda3`),
-   2. create the **`scgen`** and **`scpram`** environments,
-   3. **download & unpack** the Kang 2018 data into `data/`.
-      Answer **Y** when prompted to launch Jupyter automatically; otherwise run:
+   Answer **Y** when prompted to launch Jupyter automatically; otherwise run:
 
    ```bash
     conda activate scgen   # or: conda activate scpram
     jupyter notebook
    ```
+
+---
+
+### 3. Manual step‑by‑step alternative (macOS / Linux / WSL)
+
+If you prefer to install everything yourself:
+
+```bash
+# A) install Git if missing
+sudo apt update && sudo apt install git -y
+# or on macOS: brew install git
+
+# B) clone the repo
+git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+cd virtual-tutorial-perturbation-modelling
+
+# C) download the Kang 2018 data (≈850 MB)
+mkdir -p data
+curl -L -o data/kang.zip \
+  "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1"
+unzip -u data/kang.zip -d data/
+rm data/kang.zip
+
+# D) install Miniconda
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+bash miniconda.sh -b -p $HOME/miniconda3
+source "$HOME/miniconda3/etc/profile.d/conda.sh"
+
+# E) create the two environments
+conda env create -f envs/environment_scgen.yml
+conda env create -f envs/environment_scpram.yml
+
+# F) launch Jupyter
+conda activate scgen   # or: conda activate scpram
+jupyter-lab
+```
 
 ---
 
