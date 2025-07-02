@@ -1,98 +1,107 @@
 #!/usr/bin/env bash
-
-#git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-#cd virtual-tutorial-pereturbation-modelling/
-
-## Data avaialble on Zenodo:
-# Gavriilidis, G., & Jagot, S. (2025). Perturbation_modelling_tutorial_ECCB2025 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15745452
-echo "Data is downloading from zenodo..."
-mkdir -p data
-curl -L -o ./data/Kang.zip https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1
-unzip -u data/kang.zip -d data/
-
-## Environmental setup script for MacOS/Linux
-# For Windows, please refer the README section
-
-# Python3 and Pip
-echo "$(python --version) is installed ✔️ & available in the location: $(which python)"
-echo "$(pip --version) is installed ✔️ & available in the location: $(which pip)"
-
-# if you get an error, try installing latest version of python from the (official website)[https://www.python.org/downloads/]
-
-# BEFORE downloading/installing Miniconda...
-if command -v conda >/dev/null; then
-    echo "⚠️  Conda already found at: $(command -v conda)"
-    read -p "Reuse this Conda instead of installing a new one? [Y/n] " ans
-    if [[ ! $ans =~ ^[Nn]$ ]]; then
-        source "$(conda info --base)/etc/profile.d/conda.sh"
-        SKIP_CONDA_INSTALL=true
-    fi
-fi
-...
-if [[ -z ${SKIP_CONDA_INSTALL:-} ]]; then
-    # run the installer exactly as before
-fi
-
-## install Miniconda
-# Please refer this (site)[https://www.anaconda.com/docs/getting-started/miniconda/install] for any quries
-echo "Installing Miniconda ..."
 set -euo pipefail
 
-OS=$(uname -s)
-ARCH=$(uname -m)
+# ────────────────────────────────
+# helper: coloured echo
+# ────────────────────────────────
+info () { printf "\e[1;34m%s\e[0m\n" "$*"; }
+warn () { printf "\e[1;33m%s\e[0m\n" "$*"; }
+err  () { printf "\e[1;31m%s\e[0m\n" "$*"; }
+
+# ────────────────────────────────
+# 0) download Kang 2018 dataset
+# ────────────────────────────────
+info "📥  Downloading tutorial data from Zenodo …"
+mkdir -p data
+ZIP_PATH="data/zenodo_perturbations_ECCB2025.zip"
+
+curl -L -o "$ZIP_PATH" \
+     "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1"
+
+# extract *only* .h5ad files from the inner folder, strip path (-j)
+info "📂  Extracting .h5ad files …"
+unzip -j -qq "$ZIP_PATH" 'zenodo_perturbations_ECCB2025/*.h5ad' -d data/
+
+# drop macOS resource forks such as ._kang_2018.h5ad
+find data -type f -name '._*' -delete
+
+rm "$ZIP_PATH"
+info "   ✔️  data/ now contains: $(ls data/*.h5ad | wc -l)  H5AD files."
+
+# ────────────────────────────────
+# 1) check system Python / Pip
+# ────────────────────────────────
+info "$(python --version) @ $(which python)"
+info "$(pip    --version) @ $(which pip)"
+
+# ────────────────────────────────
+# 2) (maybe) install Miniconda
+# ────────────────────────────────
 MINICONDA_DIR="$HOME/miniconda3"
+INSTALL_MINICONDA=true
 
-case "$OS" in
-    Darwin)
-        if [ "$ARCH" = "arm64" ]; then
-            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
-        else
-            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
-        fi
-        ;;
-    Linux)
-        URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-        ;;
-    *)
-	    echo "This OS is currently unsupported ✖️ (For Windows, please refer README.md)"
-        exit 1
-        ;;
-esac
+if command -v conda >/dev/null; then
+    warn "⚠️  A Conda installation already exists at:  $(command -v conda)"
+    read -rp "   Re-use this Conda? [Y/n] " ans
+    if [[ ! $ans =~ ^[Nn]$ ]]; then
+        INSTALL_MINICONDA=false
+        # shell-init for bash/zsh – works for both mamba & conda
+        source "$(conda info --base)/etc/profile.d/conda.sh"
+        info "   👍  Re-using existing Conda."
+    else
+        warn "   Will install a fresh Miniconda under $MINICONDA_DIR"
+    fi
+fi
 
-mkdir -p "$MINICONDA_DIR"
-curl -fsSL "$URL" -o "$MINICONDA_DIR/miniconda.sh"
-bash "$MINICONDA_DIR/miniconda.sh" -b -u -p "$MINICONDA_DIR"
-rm "$MINICONDA_DIR/miniconda.sh"
-source "$MINICONDA_DIR/bin/activate"
+if [[ $INSTALL_MINICONDA == true ]]; then
+    info "🚀  Installing Miniconda …"
+    OS=$(uname -s)
+    ARCH=$(uname -m)
+    case "$OS" in
+        Darwin)
+            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-${ARCH}.sh"
+            ;;
+        Linux)
+            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+            ;;
+        *)
+            err  "This OS is unsupported. Windows users: see README (use WSL)."
+            exit 1
+            ;;
+    esac
+    mkdir -p "$MINICONDA_DIR"
+    curl -fsSL "$URL" -o "$MINICONDA_DIR/miniconda.sh"
+    bash "$MINICONDA_DIR/miniconda.sh" -b -u -p "$MINICONDA_DIR"
+    rm  "$MINICONDA_DIR/miniconda.sh"
+    source "$MINICONDA_DIR/etc/profile.d/conda.sh"
+    info "   ✔️  Miniconda ready."
+fi
 
-## Conda environment setup
+# ────────────────────────────────
+# 3) create tutorial environments
+# ────────────────────────────────
+info "⏳  Creating Conda environments (scgen & scpram) … this may take a while."
 conda clean --all -y
 conda env create -f envs/environment_scgen.yml &
 conda env create -f envs/environment_scpram.yml &
 wait
+info "   ✔️  Environments created."
 
-echo "Environment setup complete!(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
+# ────────────────────────────────
+# 4) optional: launch notebooks
+# ────────────────────────────────
+read -rp "▶️  Launch scGen notebook now? [y/N] " run
+if [[ $run =~ ^[Yy]$ ]]; then
+    conda activate scgen
+    jupyter notebook notebooks/scGen_Tutorial_ECCB2025.ipynb
+    conda deactivate
+fi
 
-# Running scGen
-read -p "Do you want to run scGen?" ans
-case "$ans" in
-	[Yy]|[Yy][Ee][Ss])
-		conda activate scgen && jupyter notebook 1_scGen/scGen_Tutorial_ECCB2025.ipynb
-		;;
-	[Nn]|[Nn][Oo])
-		echo "Please open jupyter-notebook in your browser and run scGen_Tutorial_ECCB2025.ipynb"
-		;;
-esac
+read -rp "▶️  Launch scPRAM notebook now? [y/N] " run
+if [[ $run =~ ^[Yy]$ ]]; then
+    conda activate scpram
+    jupyter notebook notebooks/scPRAM_Tutorial_ECCB2025.ipynb
+    conda deactivate
+fi
 
-# Running scPRAM
-read -p "Do you want to run scPRAM?" ans
-case "$ans" in
-	[Yy]|[Yy][Ee][Ss])
-		conda activate scpram && jupyter notebook 1_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
-		;;
-	[Nn]|[Nn][Oo])
-		echo "Please open jupyter-notebook in your browser and run scPRAM_Tutorial_ECCB2025.ipynb"
-		;;
-esac
-
-echo "Have a lots of fun!... (^_^)"
+info "🥳  Setup finished – happy analysing!"

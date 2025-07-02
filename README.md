@@ -95,31 +95,42 @@ If you prefer to install everything yourself:
 
 ```bash
 # A) install Git if missing
-sudo apt update && sudo apt install git -y
-# or on macOS: brew install git
+sudo apt update && sudo apt install git -y          # Ubuntu / WSL
+# macOS: brew install git
 
 # B) clone the repo
 git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
 cd virtual-tutorial-perturbation-modelling
 
-# C) download the Kang 2018 data (≈850 MB)
+# C) download *only* the .h5ad files from Zenodo  (≈ 850 MB → 6 files)
 mkdir -p data
-curl -L -o data/kang.zip \
+ZIP=data/zenodo_perturbations_ECCB2025.zip
+curl -L -o "$ZIP" \
   "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1"
-unzip -u data/kang.zip -d data/
-rm data/kang.zip
 
-# D) install Miniconda
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-bash miniconda.sh -b -p $HOME/miniconda3
-source "$HOME/miniconda3/etc/profile.d/conda.sh"
+#   -j  = ‘junk’ the paths (flatten)
+#   '*.h5ad' inside the inner folder only
+unzip -j -qq "$ZIP" 'zenodo_perturbations_ECCB2025/*.h5ad' -d data/
+find data -type f -name '._*' -delete        # drop macOS resource forks
+rm "$ZIP"
 
-# E) create the two environments
+# D) install Miniconda *unless you already have conda / mamba*
+if ! command -v conda &> /dev/null; then
+  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  bash miniconda.sh -b -p $HOME/miniconda3
+  rm miniconda.sh
+  source "$HOME/miniconda3/etc/profile.d/conda.sh"
+else
+  echo "✔️  Re-using existing Conda at: $(command -v conda)"
+  source "$(conda info --base)/etc/profile.d/conda.sh"
+fi
+
+# E) create the two tutorial environments
 conda env create -f envs/environment_scgen.yml
 conda env create -f envs/environment_scpram.yml
 
 # F) launch Jupyter
-conda activate scgen   # or: conda activate scpram
+conda activate scgen   # swap to scpram to explore the other notebook
 jupyter-lab
 ```
 
