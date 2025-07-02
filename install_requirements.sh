@@ -93,14 +93,14 @@ info "   ✔️  Environments created."
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
     conda activate scgen
-    jupyter-lab notebooks/scGen_Tutorial_ECCB2025.ipynb
+    jupyter-lab 1_scGen/scGen_Tutorial_ECCB2025.ipynb
     conda deactivate
 fi
 
 read -rp "▶️  Launch scPRAM notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
     conda activate scpram
-    jupyter-lab notebooks/scPRAM_Tutorial_ECCB2025.ipynb
+    jupyter-lab 2_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
     conda deactivate
 fi
 
