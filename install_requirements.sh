@@ -11,26 +11,16 @@ err  () { printf "\e[1;31m%s\e[0m\n" "$*"; }
 # ────────────────────────────────
 # 0) make sure basic CLI tools are present
 # ────────────────────────────────
-REQUIRED=(curl unzip)          # add more if you discover new gaps later
+REQUIRED=(curl unzip tar bzip2)        # extend here if you hit new gaps
 MISSING=()
-
 for cmd in "${REQUIRED[@]}"; do
     command -v "$cmd" &>/dev/null || MISSING+=("$cmd")
 done
-
 if ((${#MISSING[@]})); then
     warn "🔧  Installing missing system packages: ${MISSING[*]}"
-    if command -v apt-get &>/dev/null; then               # Debian/Ubuntu/WSL
-        sudo apt-get update -qq
-        sudo apt-get install -y "${MISSING[@]}"
-    elif command -v yum &>/dev/null; then                 # RHEL/CentOS/Fedora
-        sudo yum install -y "${MISSING[@]}"
-    else
-        err  "Don't know how to install ${MISSING[*]} on this system."
-        exit 1
-    fi
+    sudo apt-get update -qq
+    sudo apt-get install -y "${MISSING[@]}"
 fi
-
 
 # ────────────────────────────────
 # 1) download Kang 2018 dataset
@@ -53,80 +43,57 @@ rm "$ZIP_PATH"
 info "   ✔️  data/ now contains: $(ls data/*.h5ad | wc -l)  H5AD files."
 
 # ────────────────────────────────
-# 2) check system Python / Pip
+# 2) (optional) show system Python / Pip
 # ────────────────────────────────
-info "$(python --version) @ $(which python)"
-info "$(pip    --version) @ $(which pip)"
+if command -v python >/dev/null; then
+    info "$(python --version) @ $(which python)"
+else
+    warn "No system Python found (that’s fine, Miniconda will provide one)."
+fi
+if command -v pip >/dev/null;   then
+    info "$(pip --version) @ $(which pip)"
+fi
 
 # ────────────────────────────────
-# 3) (maybe) install Miniconda
+# 3) install / reuse Miniconda
 # ────────────────────────────────
 MINICONDA_DIR="$HOME/miniconda3"
-INSTALL_MINICONDA=true
+if ! command -v conda >/dev/null; then
+    info "🚀  Installing Miniconda under $MINICONDA_DIR …"
+    curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh
+    bash /tmp/miniconda.sh -b -u -p "$MINICONDA_DIR"
+    rm /tmp/miniconda.sh
+fi
 
-if command -v conda >/dev/null; then
-    warn "⚠️  A Conda installation already exists at:  $(command -v conda)"
-    read -rp "   Re-use this Conda? [Y/n] " ans
-    if [[ ! $ans =~ ^[Nn]$ ]]; then
-        INSTALL_MINICONDA=false
-        # shell-init for bash/zsh – works for both mamba & conda
-        source "$(conda info --base)/etc/profile.d/conda.sh"
-        info "   👍  Re-using existing Conda."
+# shell-init for the current script **and** future log-ins
+source "$MINICONDA_DIR/etc/profile.d/conda.sh"
+grep -qxF 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' "$HOME/.bashrc" \
+    || echo 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' >>"$HOME/.bashrc"
+conda activate base
+
+# ────────────────────────────────
+# 4) create tutorial environments *sequentially*
+# ────────────────────────────────
+info "⏳  Creating Conda environments (scgen & scpram) …"
+for YAML in envs/environment_scgen.yml envs/environment_scpram.yml; do
+    ENV_NAME=$(grep '^name:' "$YAML" | awk '{print $2}')
+    if conda info --envs | grep -qE "^\s*$ENV_NAME\s"; then
+        info "   ✔️  Environment $ENV_NAME already exists – skipping."
     else
-        warn "   Will install a fresh Miniconda under $MINICONDA_DIR"
+        conda env create -f "$YAML" || { err "Environment $ENV_NAME failed."; exit 1; }
     fi
-fi
-
-if [[ $INSTALL_MINICONDA == true ]]; then
-    info "🚀  Installing Miniconda …"
-    OS=$(uname -s)
-    ARCH=$(uname -m)
-    case "$OS" in
-        Darwin)
-            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-${ARCH}.sh"
-            ;;
-        Linux)
-            URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-            ;;
-        *)
-            err  "This OS is unsupported. Windows users: see README (use WSL)."
-            exit 1
-            ;;
-    esac
-    mkdir -p "$MINICONDA_DIR"
-    curl -fsSL "$URL" -o "$MINICONDA_DIR/miniconda.sh"
-    bash "$MINICONDA_DIR/miniconda.sh" -b -u -p "$MINICONDA_DIR"
-    rm  "$MINICONDA_DIR/miniconda.sh"
-    source "$MINICONDA_DIR/etc/profile.d/conda.sh"
-    info "   ✔️  Miniconda ready."
-fi
+done
+info "   ✔️  Environments ready."
 
 # ────────────────────────────────
-# 4) create tutorial environments
-# ────────────────────────────────
-info "⏳  Creating Conda environments (scgen & scpram) … this may take a while."
-conda clean --all -y
-conda env create -f envs/environment_scgen.yml &
-conda env create -f envs/environment_scpram.yml &
-wait
-info "   ✔️  Environments created."
-
-# ────────────────────────────────
-# 5) auto-install GPU PyTorch if an NVIDIA card is present
+# 5) optional: install CUDA PyTorch
 # ────────────────────────────────
 if command -v nvidia-smi &>/dev/null; then
     info "⚙️  NVIDIA GPU detected – installing CUDA-enabled PyTorch …"
-    # Pick the toolkit version that matches the driver (12.x → CUDA 12, else 11.8)
     DRIVER_MAJOR=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
-    if (( DRIVER_MAJOR >= 525 )); then
-        CUDA_VER="12.1"
-    else
-        CUDA_VER="11.8"
-    fi
+    CUDA_VER=$(( DRIVER_MAJOR >= 525 ? 12 : 11 )).${DRIVER_MAJOR:+8}
     for ENV in scgen scpram; do
-        conda activate "$ENV"
-        conda install -y pytorch pytorch-cuda=$CUDA_VER -c pytorch -c nvidia
-        conda deactivate
+        conda run -n "$ENV" conda install -y pytorch pytorch-cuda="$CUDA_VER" -c pytorch -c nvidia
     done
     info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER)."
 else

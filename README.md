@@ -25,7 +25,7 @@ The simplest path on Windows is to let Microsoft’s **Windows Subsystem for 
 (WSL 2)** run a tiny Ubuntu Linux under the hood and then follow the same
 one‑click installer we use on macOS & Linux.
 
-1. **Enable WSL 2 and install Ubuntu (one‑off, ≈3 min)**
+1. **Enable WSL 2 and install Ubuntu**
 
    Open *PowerShell as Administrator* and paste:
 
@@ -36,6 +36,8 @@ one‑click installer we use on macOS & Linux.
    Reboot when prompted.
    After the reboot Windows finishes downloading Ubuntu; choose a **username**
    (e.g. `tutorial`) and **password** when the black “Ubuntu” window appears.
+
+   > If the command above does not work, follow the [official WSL installation guide](https://learn.microsoft.com/en-us/windows/wsl/install) to install WSL 2 and Ubuntu manually.
 
 2. **Open Ubuntu** (look for *“Ubuntu”* in the Start menu) and install **Git**:
 
@@ -49,10 +51,13 @@ one‑click installer we use on macOS & Linux.
    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
    cd virtual-tutorial-perturbation-modelling
    chmod +x install_requirements.sh
+   ```
+
+   ```bash
    ./install_requirements.sh
    ```
 
-   The script
+   The script:
 
    * installs **Miniconda** under `~/miniconda3`,
    * creates the **`scgen`** and **`scpram`** environments,
