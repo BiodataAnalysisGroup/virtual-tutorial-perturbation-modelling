@@ -9,7 +9,31 @@ warn () { printf "\e[1;33m%s\e[0m\n" "$*"; }
 err  () { printf "\e[1;31m%s\e[0m\n" "$*"; }
 
 # ────────────────────────────────
-# 0) download Kang 2018 dataset
+# 0) make sure basic CLI tools are present
+# ────────────────────────────────
+REQUIRED=(curl unzip)          # add more if you discover new gaps later
+MISSING=()
+
+for cmd in "${REQUIRED[@]}"; do
+    command -v "$cmd" &>/dev/null || MISSING+=("$cmd")
+done
+
+if ((${#MISSING[@]})); then
+    warn "🔧  Installing missing system packages: ${MISSING[*]}"
+    if command -v apt-get &>/dev/null; then               # Debian/Ubuntu/WSL
+        sudo apt-get update -qq
+        sudo apt-get install -y "${MISSING[@]}"
+    elif command -v yum &>/dev/null; then                 # RHEL/CentOS/Fedora
+        sudo yum install -y "${MISSING[@]}"
+    else
+        err  "Don't know how to install ${MISSING[*]} on this system."
+        exit 1
+    fi
+fi
+
+
+# ────────────────────────────────
+# 1) download Kang 2018 dataset
 # ────────────────────────────────
 info "📥  Downloading tutorial data from Zenodo …"
 mkdir -p data
@@ -29,13 +53,13 @@ rm "$ZIP_PATH"
 info "   ✔️  data/ now contains: $(ls data/*.h5ad | wc -l)  H5AD files."
 
 # ────────────────────────────────
-# 1) check system Python / Pip
+# 2) check system Python / Pip
 # ────────────────────────────────
 info "$(python --version) @ $(which python)"
 info "$(pip    --version) @ $(which pip)"
 
 # ────────────────────────────────
-# 2) (maybe) install Miniconda
+# 3) (maybe) install Miniconda
 # ────────────────────────────────
 MINICONDA_DIR="$HOME/miniconda3"
 INSTALL_MINICONDA=true
@@ -78,7 +102,7 @@ if [[ $INSTALL_MINICONDA == true ]]; then
 fi
 
 # ────────────────────────────────
-# 3) create tutorial environments
+# 4) create tutorial environments
 # ────────────────────────────────
 info "⏳  Creating Conda environments (scgen & scpram) … this may take a while."
 conda clean --all -y
@@ -88,7 +112,7 @@ wait
 info "   ✔️  Environments created."
 
 # ────────────────────────────────
-# 4) auto-install GPU PyTorch if an NVIDIA card is present
+# 5) auto-install GPU PyTorch if an NVIDIA card is present
 # ────────────────────────────────
 if command -v nvidia-smi &>/dev/null; then
     info "⚙️  NVIDIA GPU detected – installing CUDA-enabled PyTorch …"
@@ -110,7 +134,7 @@ else
 fi
 
 # ────────────────────────────────
-# 5) optional: launch notebooks
+# 6) optional: launch notebooks
 # ────────────────────────────────
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
