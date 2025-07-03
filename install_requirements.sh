@@ -55,20 +55,35 @@ if command -v pip >/dev/null;   then
 fi
 
 # ────────────────────────────────
-# 3) install / reuse Miniconda
+# 3) install / reuse Miniconda  (macOS Intel / Apple-Silicon, Linux, WSL2)
 # ────────────────────────────────
 MINICONDA_DIR="$HOME/miniconda3"
-if ! command -v conda >/dev/null; then
-    info "🚀  Installing Miniconda under $MINICONDA_DIR …"
-    curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh
+
+if ! command -v conda &>/dev/null; then
+    info "🚀  No Conda detected – installing Miniconda under $MINICONDA_DIR …"
+
+    # Pick the correct installer for the current platform
+    OS=$(uname -s)          # Darwin | Linux   (WSL reports “Linux”)
+    ARCH=$(uname -m)        # x86_64 | arm64 …
+
+    case "${OS}_${ARCH}" in
+        Darwin_arm64)  MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"  ;;
+        Darwin_*)      MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
+        Linux_*)       MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"  ;;   # native Linux **and** WSL
+        *)             err "❌  Unsupported platform: ${OS} ${ARCH}.  (Windows users: install via WSL 2)"; exit 1 ;;
+    esac
+
+    curl -fsSL "$MURL" -o /tmp/miniconda.sh
     bash /tmp/miniconda.sh -b -u -p "$MINICONDA_DIR"
     rm /tmp/miniconda.sh
+else
+    info "👍  Re-using existing Conda at: $(command -v conda)"
 fi
 
-# shell-init for the current script **and** future log-ins
+# shell-init for this script **and** future terminals
 source "$MINICONDA_DIR/etc/profile.d/conda.sh"
 grep -qxF 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' "$HOME/.bashrc" \
-    || echo 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' >>"$HOME/.bashrc"
+  || echo 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' >>"$HOME/.bashrc"
 conda activate base
 
 # ────────────────────────────────

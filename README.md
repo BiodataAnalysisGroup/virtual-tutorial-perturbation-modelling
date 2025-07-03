@@ -126,8 +126,14 @@ rm "$ZIP"
 
 ```bash
 # D) install Miniconda *unless you already have conda / mamba*
-if ! command -v conda &> /dev/null; then
-  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+# D) install Miniconda (macOS Intel / Apple Silicon / Linux incl. WSL)
+if ! command -v conda &>/dev/null; then
+  case "$(uname -s)-$(uname -m)" in
+    Darwin-arm64*) INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
+    Darwin-*)      INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh ;;
+    Linux-*)       INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  ;;
+  esac
+  curl -fsSL "$INST" -o miniconda.sh
   bash miniconda.sh -b -p $HOME/miniconda3
   rm miniconda.sh
   source "$HOME/miniconda3/etc/profile.d/conda.sh"
