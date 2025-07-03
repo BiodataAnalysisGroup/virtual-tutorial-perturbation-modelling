@@ -125,8 +125,7 @@ rm "$ZIP"
 ```
 
 ```bash
-# D) install Miniconda *unless you already have conda / mamba*
-# D) install Miniconda (macOS Intel / Apple Silicon / Linux incl. WSL)
+# D) install Miniconda (macOS Intel / Apple Silicon / Linux incl. WSL) *unless you already have conda / mamba*
 if ! command -v conda &>/dev/null; then
   case "$(uname -s)-$(uname -m)" in
     Darwin-arm64*) INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
