@@ -109,7 +109,21 @@ fi
 grep -qxF "source \"$CONDA_BASE/etc/profile.d/conda.sh\""  "$HOME/.bashrc" \
   || echo "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" >>"$HOME/.bashrc"
 
-$CONDA_BIN activate base
+# load the appropriate shell hook
+if [[ $CONDA_BIN == *"micromamba"* ]]; then
+    eval "$($CONDA_BIN shell hook -s bash)"
+else
+    eval "$($CONDA_BIN shell.bash hook)"
+fi
+
+# choose the right front-end command once and reuse it
+if command -v conda &>/dev/null; then
+    ACTIVATOR=conda          # Conda or Mamba
+else
+    ACTIVATOR=$(basename "$CONDA_BIN")   # micromamba
+fi
+
+$ACTIVATOR activate base
 
 # ────────────────────────────────
 # 4) create tutorial environments *sequentially*
@@ -161,16 +175,16 @@ fi
 # ────────────────────────────────
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
-    "$CONDA_BIN" activate scgen
+    $ACTIVATOR activate scgen
     jupyter-lab 1_scGen/scGen_Tutorial_ECCB2025.ipynb
-    "$CONDA_BIN" deactivate
+    $ACTIVATOR deactivate
 fi
 
 read -rp "▶️  Launch scPRAM notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
-    "$CONDA_BIN" activate scpram
+    $ACTIVATOR activate scpram
     jupyter-lab 2_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
-    "$CONDA_BIN" deactivate
+    $ACTIVATOR deactivate
 fi
 
 info "🥳  Setup finished – happy analysing!"

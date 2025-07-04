@@ -164,7 +164,11 @@ else
   # something is already installed – reuse it
   PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
   echo "✔️  Re-using existing tool: $PKG_MGR"
-  source "$($PKG_MGR info --base)/etc/profile.d/conda.sh"
+  if [[ $(basename "$PKG_MGR") == micromamba ]]; then
+    eval "$($PKG_MGR shell hook -s bash)"      # Micromamba
+  else
+    source "$($PKG_MGR info --base)/etc/profile.d/conda.sh"   # Conda / Mamba
+  fi
 fi
 
 # automatically pick the right binary for later steps
@@ -221,11 +225,11 @@ jupyter-lab                  # opens in your browser – navigate to notebooks
 
 | task                       | command                                                    |
 | -------------------------- | ---------------------------------------------------------- |
-| Launch **scGen** notebook  | `conda activate scgen && jupyter-lab`¹                 |
-| Launch **scPRAM** notebook | `conda activate scpram && jupyter-lab`¹                |
+| Launch **scGen** notebook  | `<conda / mamba / micromamba> activate scgen && jupyter-lab`¹ |
+| Launch **scPRAM** notebook | `<conda / mamba / micromamba> activate scpram && jupyter-lab`¹ |
 | Stop Jupyter               | press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal         |
 
-¹ **Substitute `conda` with whatever you have** (e.g. `mamba` or `micromamba`) if you followed the manual route and that tool is not aliased to `conda` on your system, e.g.:
+¹ **Use the same front-end the installer reported** (`conda`, `mamba` or `micromamba`). For example:
 
 ```bash
 mamba activate scgen   # or: micromamba activate scgen
