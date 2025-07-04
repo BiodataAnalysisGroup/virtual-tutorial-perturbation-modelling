@@ -55,35 +55,40 @@ if command -v pip >/dev/null;   then
 fi
 
 # ────────────────────────────────
-# 3) install / reuse Miniconda  (macOS Intel / Apple-Silicon, Linux, WSL2)
+# 3) install  ▸ or ▸  reuse  Miniconda / Anaconda
 # ────────────────────────────────
-MINICONDA_DIR="$HOME/miniconda3"
+MINICONDA_DIR="$HOME/miniconda3"     # target if we must install a *new* one
+CONDA_BASE=""                        # will point to the true base afterwards
+NEED_FRESH_INSTALL=false
 
-if ! command -v conda &>/dev/null; then
-    info "🚀  No Conda detected – installing Miniconda under $MINICONDA_DIR …"
+if command -v conda &>/dev/null; then               # ---------------- reuse
+    CONDA_BASE=$(conda info --base)
+    info "👍  Re-using existing Conda at:  $CONDA_BASE"
+else                                                # ---------------- install
+    NEED_FRESH_INSTALL=true
+    info "🚀  No Conda found – installing Miniconda under  $MINICONDA_DIR …"
 
-    # Pick the correct installer for the current platform
-    OS=$(uname -s)          # Darwin | Linux   (WSL reports “Linux”)
-    ARCH=$(uname -m)        # x86_64 | arm64 …
-
-    case "${OS}_${ARCH}" in
-        Darwin_arm64)  MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"  ;;
-        Darwin_*)      MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
-        Linux_*)       MURL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"  ;;   # native Linux **and** WSL
-        *)             err "❌  Unsupported platform: ${OS} ${ARCH}.  (Windows users: install via WSL 2)"; exit 1 ;;
+    # pick the right installer for the host OS / arch
+    case "$(uname -s)-$(uname -m)" in
+        Darwin-arm64*)  URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"  ;;
+        Darwin-*)       URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
+        Linux-*)        URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"  ;;   # Linux & WSL
+        *)              err "❌  Unsupported platform.  Windows users: run via WSL 2."; exit 1 ;;
     esac
 
-    curl -fsSL "$MURL" -o /tmp/miniconda.sh
+    curl -fsSL "$URL" -o /tmp/miniconda.sh
     bash /tmp/miniconda.sh -b -u -p "$MINICONDA_DIR"
-    rm /tmp/miniconda.sh
-else
-    info "👍  Re-using existing Conda at: $(command -v conda)"
+    rm  /tmp/miniconda.sh
+    CONDA_BASE="$MINICONDA_DIR"
 fi
 
-# shell-init for this script **and** future terminals
-source "$MINICONDA_DIR/etc/profile.d/conda.sh"
-grep -qxF 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' "$HOME/.bashrc" \
-  || echo 'source "$HOME/miniconda3/etc/profile.d/conda.sh"' >>"$HOME/.bashrc"
+# ── make Conda available *now* and for future shells ─────────────────
+source "$CONDA_BASE/etc/profile.d/conda.sh"
+
+# add to ~/.bashrc  (only once)
+grep -qxF "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" "$HOME/.bashrc" \
+  || echo "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" >>"$HOME/.bashrc"
+
 conda activate base
 
 # ────────────────────────────────
