@@ -10,4 +10,4 @@ dependencies:
   - ipywidgets  
   - pip
   - pip:
-      - scpram
+      - scpram==0.0.3 --no-deps
