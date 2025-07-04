@@ -202,9 +202,11 @@ if command -v nvidia-smi &>/dev/null; then
 
   for env in scgen scpram; do
     $PKG_MGR run -n "$env" \
-      $PKG_MGR install -y \
-        pytorch torchvision torchaudio pytorch-cuda="$cuda" \
-        -c pytorch -c nvidia -c conda-forge
+      $PKG_MGR install -y --strict-channel-priority \
+          "pytorch::pytorch"                                     \
+          "pytorch::torchvision"                                 \
+          "pytorch::torchaudio"                                  \
+          "nvidia::pytorch-cuda=$CUDA_VER"
   done
   echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
 ```
