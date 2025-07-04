@@ -151,16 +151,28 @@ conda env create -f envs/environment_scpram.yml
 ```bash
 # F) (optional) enable GPU acceleration
 if command -v nvidia-smi &>/dev/null; then
-  echo "🔍 NVIDIA GPU found – installing CUDA PyTorch inside both envs"
-  DRIVER=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
-  CUDA_VER=$( (( DRIVER >= 525 )) && echo 12.1 || echo 11.8 )
-  for ENV in scgen scpram; do
-      conda activate "$ENV"
-      conda install -y pytorch pytorch-cuda=$CUDA_VER -c pytorch -c nvidia
-      conda deactivate
+  echo "🔍 NVIDIA GPU found – installing CUDA-enabled PyTorch"
+
+  # map NVIDIA *driver* → highest compatible CUDA toolkit
+  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
+        | head -n1 | cut -d. -f1)
+
+  if   (( drv >= 550 )); then cuda=12.4
+  elif (( drv >= 545 )); then cuda=12.3
+  elif (( drv >= 535 )); then cuda=12.2
+  elif (( drv >= 525 )); then cuda=12.1
+  else                       cuda=11.8
+  fi
+
+  for env in scgen scpram; do
+    conda run -n "$env" \
+      conda install -y \
+        pytorch pytorch-cuda="$cuda" torchvision torchaudio \
+        -c pytorch -c nvidia
   done
+  echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
 else
-  echo "ℹ️  No NVIDIA GPU detected – skipping CUDA install."
+  echo "ℹ️  No NVIDIA GPU detected – keeping CPU-only PyTorch."
 fi
 ```
 
@@ -179,7 +191,6 @@ jupyter-lab
 | Launch **scGen** notebook  | `conda activate scgen && jupyter-lab`                 |
 | Launch **scPRAM** notebook | `conda activate scpram && jupyter-lab`                |
 | Stop Jupyter               | press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal         |
-| Update envs later          | `conda env update -n scgen  -f envs/environment_scgen.yml` |
 
 Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrmaking/`, open a notebook and execute cells from top to bottom. Each notebook is **stand‑alone** – you can jump directly to benchmarking if you prefer.
 
