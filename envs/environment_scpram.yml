@@ -9,5 +9,3 @@ dependencies:
   - jupyterlab      
   - ipywidgets  
   - pip
-  - pip:
-      - scpram==0.0.3 --no-deps

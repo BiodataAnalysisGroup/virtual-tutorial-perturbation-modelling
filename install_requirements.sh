@@ -126,7 +126,7 @@ fi
 $ACTIVATOR activate base
 
 # ────────────────────────────────
-# 4) create tutorial environments *sequentially*
+# 4a) create tutorial environments *sequentially*
 # ────────────────────────────────
 export CONDA_EXTRACT_THREADS=1   # avoid rare multi-process extract crashes
 info "⏳  Creating Conda environments (scgen & scpram) …"
@@ -140,6 +140,12 @@ for YAML in envs/environment_scgen.yml envs/environment_scpram.yml; do
     fi
 done
 info "   ✔️  Environments ready."
+
+# ────────────────────────────────
+# 4b) add scpram without its strict pins
+# ────────────────────────────────
+info "🔧  Installing scpram==0.0.3 (no-deps) into scpram environment …"
+"$CONDA_BIN" run -n scpram pip install --no-deps scpram==0.0.3
 
 # ────────────────────────────────
 # 5) optional: install CUDA-enabled PyTorch
