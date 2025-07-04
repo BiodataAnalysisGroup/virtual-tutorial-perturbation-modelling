@@ -72,7 +72,7 @@ chmod +x install_requirements.sh
 
 This will take a while - the script will:
 * download **six 〈\*.h5ad〉 files** (\~850 MB) into `data/`,
-* install **Miniconda** (unless you already have Conda / Anaconda),
+* install **Miniconda** (skipped if **any** Conda-compatible tool – Conda, Mamba or Micromamba – is already on your system),
 * build the **`scgen`** and **`scpram`** envs and
 * look for an **NVIDIA GPU** – if present and supported, CUDA‑enabled PyTorch is installed automatically.
 
@@ -147,41 +147,45 @@ rm "$ZIP"
 ```
 
 ```bash
-# 4) install Miniconda (skip if you already have conda or mamba) ----
+# 4) install Miniconda (skip if you already have conda / mamba / micromamba) ----
 
-if ! command -v conda &>/dev/null; then
+if ! (command -v conda || command -v mamba || command -v micromamba) &>/dev/null; then
   case "$(uname -s)-$(uname -m)" in
     Darwin-arm64*) INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
     Darwin-*)      INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh ;;
     Linux-*)       INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  ;;
   esac
   curl -fsSL "$INST" -o miniconda.sh
-  bash miniconda.sh -b -p $HOME/miniconda3
+  bash miniconda.sh -b -p "$HOME/miniconda3"
   rm miniconda.sh
   source "$HOME/miniconda3/etc/profile.d/conda.sh"
 else
-  echo "✔️  Re‑using existing Conda: $(command -v conda)" && \
-  source "$(conda info --base)/etc/profile.d/conda.sh"
+  PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
+  echo "✔️  Re-using existing tool: $PKG_MGR"
+  source "$($PKG_MGR info --base)/etc/profile.d/conda.sh"
 fi
 ```
 
 ```bash
 # 5a) create the scGen environment ----------------------------------
 
-conda env create -f envs/environment_scgen.yml
+PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
+$PKG_MGR env create -f envs/environment_scgen.yml
 ```
 
 ```bash
 # 5b) create the scPRAM environment --------------------------------
 
-conda env create -f envs/environment_scpram.yml
+PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
+$PKG_MGR env create -f envs/environment_scpram.yml
 ```
 
 ```bash
-# F) (optional) add GPU support --------------------------------------
+# 6) (optional) add GPU support --------------------------------------
 
+PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
 if command -v nvidia-smi &>/dev/null; then
-  echo "🔍  NVIDIA GPU found – installing CUDA‑enabled PyTorch"
+  echo "🔍  NVIDIA GPU found – installing CUDA-enabled PyTorch"
   drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
   if   (( drv >= 550 )); then cuda=12.4
   elif (( drv >= 545 )); then cuda=12.3
@@ -190,9 +194,10 @@ if command -v nvidia-smi &>/dev/null; then
   else                       cuda=11.8
   fi
   for env in scgen scpram; do
-    conda run -n "$env" conda install -y \
-      pytorch torchvision torchaudio pytorch-cuda="$cuda" \
-      -c pytorch -c nvidia
+    $PKG_MGR run -n "$env" \
+      $PKG_MGR install -y \
+        pytorch torchvision torchaudio pytorch-cuda="$cuda" \
+        -c pytorch -c nvidia
   done
   echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
 else
@@ -203,7 +208,8 @@ fi
 ```bash
 # 7) run Jupyter ------------------------------------------------------
 
-conda activate scgen   # or: conda activate scpram
+PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
+$PKG_MGR activate scgen   # or: conda activate scpram
 jupyter-lab            # opens in your browser – navigate to notebooks
 ```
 
@@ -213,9 +219,16 @@ jupyter-lab            # opens in your browser – navigate to notebooks
 
 | task                       | command                                                    |
 | -------------------------- | ---------------------------------------------------------- |
-| Launch **scGen** notebook  | `conda activate scgen && jupyter-lab`                 |
-| Launch **scPRAM** notebook | `conda activate scpram && jupyter-lab`                |
+| Launch **scGen** notebook  | `conda activate scgen && jupyter-lab`¹                 |
+| Launch **scPRAM** notebook | `conda activate scpram && jupyter-lab`¹                |
 | Stop Jupyter               | press <kbd>Ctrl</kbd>+<kbd>C</kbd> in the terminal         |
+
+¹ **Substitute `conda` with whatever you have** (e.g. `mamba` or `micromamba`) if you followed the manual route and that tool is not aliased to `conda` on your system, e.g.:
+
+```bash
+mamba activate scgen   # or: micromamba activate scgen
+jupyter-lab
+```
 
 Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrmaking/`, open a notebook and execute cells from top to bottom. Each notebook is **stand‑alone** – you can jump directly to benchmarking if you prefer.
 
@@ -223,7 +236,7 @@ Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrma
 
 ## ❓ Troubleshooting
 
-* **`conda: command not found`** – close & reopen the terminal; Conda was added to your shell profile by the installer.
+* **`conda: command not found`** – close & reopen the terminal; the installer added the correct shell hook for Conda / Mamba / Micromamba.
 * **Port 8888 already in use** – run `jupyter-lab --port 8889` (any free port works).
 * **Web‑browser does not open automatically** – copy the full `http://localhost:8888/?token=…` link printed in the terminal into your browser.
 * **WSL says «kernel needs to be updated»** – open PowerShell as Admin ▸ `wsl --update`.

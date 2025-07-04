@@ -55,41 +55,51 @@ if command -v pip >/dev/null;   then
 fi
 
 # ────────────────────────────────
-# 3) install  ▸ or ▸  reuse  Miniconda / Anaconda
+# 3) install  ▸ or ▸  reuse  Conda / Mamba / Micromamba
 # ────────────────────────────────
-MINICONDA_DIR="$HOME/miniconda3"     # target if we must install a *new* one
-CONDA_BASE=""                        # will point to the true base afterwards
-NEED_FRESH_INSTALL=false
+MINICONDA_DIR="$HOME/miniconda3"
+CONDA_BIN=""                  # will hold the path to conda|mamba|micromamba
 
-if command -v conda &>/dev/null; then               # ---------------- reuse
-    CONDA_BASE=$(conda info --base)
-    info "👍  Re-using existing Conda at:  $CONDA_BASE"
-else                                                # ---------------- install
-    NEED_FRESH_INSTALL=true
-    info "🚀  No Conda found – installing Miniconda under  $MINICONDA_DIR …"
+# look for an existing package-manager first
+for CANDIDATE in conda mamba micromamba; do
+    if command -v "$CANDIDATE" &>/dev/null; then
+        CONDA_BIN=$(command -v "$CANDIDATE")
+        break
+    fi
+done
 
-    # pick the right installer for the host OS / arch
+if [[ -n $CONDA_BIN ]]; then                 # ───── reuse existing
+    CONDA_BASE="$($CONDA_BIN info --base)"
+    info "👍  Re-using existing $($CONDA_BIN --version | awk '{print $1}') at: $CONDA_BASE"
+else                                         # ───── install Miniconda
+    info "🚀  No Conda/Mamba detected – installing Miniconda under  $MINICONDA_DIR …"
+
     case "$(uname -s)-$(uname -m)" in
-        Darwin-arm64*)  URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"  ;;
+        Darwin-arm64*)  URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh" ;;
         Darwin-*)       URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh" ;;
-        Linux-*)        URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"  ;;   # Linux & WSL
+        Linux-*)        URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"  ;;
         *)              err "❌  Unsupported platform.  Windows users: run via WSL 2."; exit 1 ;;
     esac
 
     curl -fsSL "$URL" -o /tmp/miniconda.sh
     bash /tmp/miniconda.sh -b -u -p "$MINICONDA_DIR"
     rm  /tmp/miniconda.sh
+
+    CONDA_BIN="$MINICONDA_DIR/bin/conda"
     CONDA_BASE="$MINICONDA_DIR"
 fi
 
-# ── make Conda available *now* and for future shells ─────────────────
-source "$CONDA_BASE/etc/profile.d/conda.sh"
-
-# add to ~/.bashrc  (only once)
+# make the chosen tool available in this shell and future log-ins
+if [[ $CONDA_BIN == *"micromamba"* ]]; then
+    # micromamba has its own shell hook
+    eval "$($CONDA_BIN shell hook -s bash)"
+else
+    source "$CONDA_BASE/etc/profile.d/conda.sh"
+fi
 grep -qxF "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" "$HOME/.bashrc" \
   || echo "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" >>"$HOME/.bashrc"
 
-conda activate base
+"$CONDA_BIN" activate base
 
 # ────────────────────────────────
 # 4) create tutorial environments *sequentially*
@@ -98,10 +108,10 @@ info "⏳  Creating Conda environments (scgen & scpram) …"
 for YAML in envs/environment_scgen.yml envs/environment_scpram.yml; do
     ENV_NAME=$(grep '^name:' "$YAML" | awk '{print $2}')
     info "   ➡️  Creating environment: $ENV_NAME"
-    if conda info --envs | grep -qE "^\s*$ENV_NAME\s"; then
+    if "$CONDA_BIN" info --envs | grep -qE "^\s*$ENV_NAME\s"; then
         info "   ✔️  Environment $ENV_NAME already exists – skipping."
     else
-        conda env create -f "$YAML" || { err "Environment $ENV_NAME failed."; exit 1; }
+        "$CONDA_BIN" env create -f "$YAML" || { err "Environment $ENV_NAME failed."; exit 1; }
     fi
 done
 info "   ✔️  Environments ready."
@@ -124,8 +134,8 @@ if command -v nvidia-smi &>/dev/null; then
     fi
 
     for ENV in scgen scpram; do
-        conda run -n "$ENV" \
-          conda install -y pytorch pytorch-cuda="$CUDA_VER" \
+        "$CONDA_BIN" run -n "$ENV" \
+          "$CONDA_BIN" install -y pytorch pytorch-cuda="$CUDA_VER" \
                           torchvision torchaudio           \
                           -c pytorch -c nvidia
     done
@@ -140,16 +150,16 @@ fi
 # ────────────────────────────────
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
-    conda activate scgen
+    "$CONDA_BIN" activate scgen
     jupyter-lab 1_scGen/scGen_Tutorial_ECCB2025.ipynb
-    conda deactivate
+    "$CONDA_BIN" deactivate
 fi
 
 read -rp "▶️  Launch scPRAM notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then
-    conda activate scpram
+    "$CONDA_BIN" activate scpram
     jupyter-lab 2_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
-    conda deactivate
+    "$CONDA_BIN" deactivate
 fi
 
 info "🥳  Setup finished – happy analysing!"
