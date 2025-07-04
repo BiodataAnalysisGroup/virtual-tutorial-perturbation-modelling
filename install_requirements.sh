@@ -11,7 +11,7 @@ err  () { printf "\e[1;31m%s\e[0m\n" "$*"; }
 # ────────────────────────────────
 # 0) make sure basic CLI tools are present
 # ────────────────────────────────
-REQUIRED=(curl unzip tar bzip2)        # extend here if you hit new gaps
+REQUIRED=(curl unzip)        # extend here if you hit new gaps (e.g. tar bzip2)
 MISSING=()
 for cmd in "${REQUIRED[@]}"; do
     command -v "$cmd" &>/dev/null || MISSING+=("$cmd")

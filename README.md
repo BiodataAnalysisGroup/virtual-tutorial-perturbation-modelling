@@ -11,15 +11,17 @@ Absolute beginners are welcome — the instructions below assume **zero prior e
 
 ---
 
-## 🛠️ Installation
+## 🛠️ Step-by-Step Installation
 
-Follow the steps for **your operating system only** — you will end up with two ready‑to‑use Conda environments called **`scgen`** and **`scpram`** plus a local copy of the tutorial data.
+Follow **only the block that matches your operating system**. In the end you will have two ready‑to‑run Conda environments – **`scgen`** and **`scpram`** – plus the Kang 2018 demo dataset in a local `data/` folder. It is recommended that we have **at least 40 GB of free disk space** available.
 
-> **Tip for first‑timers:**
-> Copy a command → click inside your terminal → **right‑click → paste** → hit ⏎ *enter*.
-> Run the commands **one at a time** and wait until each finishes.
+> **How to paste commands**
+>
+> *Windows / WSL*: click anywhere inside the terminal ▸ **Right‑click** ▸ the command appears ▸ press **⏎ Enter**.
+> *macOS / Linux*: click ▸ **⌘ V** or **Ctrl Shift V** ▸ **⏎ Enter**.
+> Run **one command at a time** and wait until it finishes before moving on.
 
-### 1. Windows 10/11 (Home or Pro) — via **WSL 2**
+### 1. Windows 10/11 (Home or Pro) — use **WSL 2 + Ubuntu**
 
 The simplest path on Windows is to let Microsoft’s **Windows Subsystem for Linux 2
 (WSL 2)** run a tiny Ubuntu Linux under the hood and then follow the same
@@ -28,29 +30,76 @@ one‑click installer we use on macOS & Linux.
 > **Which Windows versions are OK?**  
 > ◼︎ **Windows 11** (any edition) – WSL 2 ships out-of-the-box  
 > ◼︎ **Windows 10 21H2 or newer** (build 19044 or later) – also fine  
-> ◼︎ Older Windows 10?  Update to the latest feature release or use a different computer, otherwise Linux containers will not work.
+> ◼︎ Older Windows 10? Update to the latest feature release or use a different computer, otherwise Linux containers will not work.
 
-1. **Enable WSL 2 and install Ubuntu**
+#### 1.1. Turn on WSL 2 and fetch Ubuntu
 
-   Open *PowerShell as Administrator* and paste:
+1. Press **⊞ Start**, type **PowerShell**, right‑click **«Windows PowerShell»** ▸ **Run as administrator**.
+2. Paste the one‑liner below **exactly** as shown and press **⏎ Enter**:
 
    ```powershell
    wsl --install
    ```
 
-   Reboot when prompted.
-   After the reboot Windows finishes downloading Ubuntu; choose a **username**
-   (e.g. `tutorial`) and **password** when the black “Ubuntu” window appears.
+   *What happens next?*  Windows enables Virtual Machine Platform, downloads Ubuntu automatically and asks you to **reboot**.  Do so.
 
-   > If *PowerShell* says the above command is unknown you are on an outdated build. Follow [Microsoft’s manual guide](https://learn.microsoft.com/en-us/windows/wsl/install-manual) instead.
+3. After the reboot a black window titled **«Ubuntu»** pops up automatically. Choose a **user name** (e.g. `tutorial`) and a **password** (type and hit ⏎ Enter – the characters stay invisible, that is normal).
 
-2. **Open Ubuntu** (look for *“Ubuntu”* in the Start menu) and install **Git**:
+> If *PowerShell* says the above command is unknown you are on an outdated Windows build. Follow [Microsoft’s manual guide](https://learn.microsoft.com/en-us/windows/wsl/install-manual) instead.
+
+#### 1.2. Install Git inside Ubuntu
+
+1. Click **⊞ Start**, type **Ubuntu**, hit **⏎ Enter**. A terminal opens with a prompt like `tutorial@PC:~$`.
+2. Copy & paste:
 
    ```bash
    sudo apt update && sudo apt install git -y
    ```
+   Enter your password (the one you just created) when prompted (again, it stays invisible) then press ⏎ Enter.
 
-3. **Clone the repository & run the auto‑installer inside WSL:**
+#### 1.3. Clone the repository & run the auto‑installer inside WSL
+
+```bash
+# still inside the Ubuntu terminal
+git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+cd virtual-tutorial-perturbation-modelling
+chmod +x install_requirements.sh
+```
+
+```bash
+./install_requirements.sh
+```
+
+This will take a while - the script will:
+* download **six 〈\*.h5ad〉 files** (\~850 MB) into `data/`,
+* install **Miniconda** (unless you already have Conda / Anaconda),
+* build the **`scgen`** and **`scpram`** envs and
+* look for an **NVIDIA GPU** – if present and supported, CUDA‑enabled PyTorch is installed automatically.
+
+At the end answer **Y** to start Jupyter right away **or** press **N** and read “Usage once installed” below.
+
+---
+
+### 2. macOS (12 Monterey +) & native Linux (Ubuntu 20.04 +)
+
+1. **Open the terminal** …
+
+   * macOS: press **⌘ Space**, type **Terminal**, hit **⏎**
+   * Linux: press **Ctrl Alt T**
+
+2. **Install Git** (only the first time):
+
+   ```bash
+   # macOS
+   brew install git              # installs Homebrew first if needed
+   ```
+
+   ```bash
+   # Linux (Ubuntu/WSL)
+   sudo apt update && sudo apt install git -y
+   ```
+
+3. **Clone & install**:
 
    ```bash
    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
@@ -62,75 +111,44 @@ one‑click installer we use on macOS & Linux.
    ./install_requirements.sh
    ```
 
-   The script:
-
-   * installs **Miniconda** under `~/miniconda3`,
-   * creates the **`scgen`** and **`scpram`** environments,
-   * downloads & unpacks the Kang 2018 tutorial data into `data/`.
-
-   When it finishes you can already launch Jupyter (answer **Y** when asked) or
-   see *Usage* further below.
-
----
-
-### 2. macOS (12 Monterey +) & native **Linux** (Ubuntu 20.04 +)
-
-Exactly the same steps as inside WSL:
-
-1. **Open Terminal** (⌘‑Space ▸ Terminal on macOS; <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> on Linux).
-2. **Install Git** if missing:
-   *macOS*: `brew install git`  (install Homebrew first from [https://brew.sh](https://brew.sh))
-   *Ubuntu*: `sudo apt update && sudo apt install git -y`
-3. **Clone the repository** & run the installer:
-
-   ```bash
-    git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-    cd virtual-tutorial-perturbation-modelling
-    chmod +x install_requirements.sh
-    ./install_requirements.sh
-   ```
-
-   Answer **Y** when prompted to launch Jupyter automatically; otherwise run:
-
-   ```bash
-    conda activate scgen   # or: conda activate scpram
-    jupyter notebook
-   ```
-
+   The script behaves the same as on Windows/WSL (see above).
 ---
 
 ### 3. Manual step‑by‑step alternative (macOS / Linux / WSL)
 
-If you prefer to install everything yourself:
+If you prefer to **see every step** or your network blocks large scripts:
 
 ```bash
-# A) install Git if missing
-sudo apt update && sudo apt install git -y          # Ubuntu / WSL
-# macOS: brew install git
+# 1) prerequisites --------------------------------------------------
+#    (Git + curl + unzip already present on most systems)
+
+sudo apt update && sudo apt install git curl unzip -y   # Debian/Ubuntu/WSL
+# macOS: brew install git curl unzip
 ```
 
 ```bash
-# B) clone the repo
+# 2) clone the repo -------------------------------------------------
+
 git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
 cd virtual-tutorial-perturbation-modelling
 ```
 
 ```bash
-# C) download *only* the .h5ad files from Zenodo  (≈ 850 MB → 6 files)
+# 3) download ONLY the 6 .h5ad files (≈ 850 MB) ---------------------
+
 mkdir -p data
 ZIP=data/zenodo_perturbations_ECCB2025.zip
 curl -L -o "$ZIP" \
   "https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1"
 
-#   -j  = ‘junk’ the paths (flatten)
-#   '*.h5ad' inside the inner folder only
 unzip -j -qq "$ZIP" 'zenodo_perturbations_ECCB2025/*.h5ad' -d data/
-find data -type f -name '._*' -delete        # drop macOS resource forks
+find data -type f -name '._*' -delete
 rm "$ZIP"
 ```
 
 ```bash
-# D) install Miniconda (macOS Intel / Apple Silicon / Linux incl. WSL) *unless you already have conda / mamba*
+# 4) install Miniconda (skip if you already have conda or mamba) ----
+
 if ! command -v conda &>/dev/null; then
   case "$(uname -s)-$(uname -m)" in
     Darwin-arm64*) INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
@@ -142,38 +160,39 @@ if ! command -v conda &>/dev/null; then
   rm miniconda.sh
   source "$HOME/miniconda3/etc/profile.d/conda.sh"
 else
-  echo "✔️  Re-using existing Conda at: $(command -v conda)"
+  echo "✔️  Re‑using existing Conda: $(command -v conda)" && \
   source "$(conda info --base)/etc/profile.d/conda.sh"
 fi
 ```
 
 ```bash
-# E) create the two tutorial environments
+# 5a) create the scGen environment ----------------------------------
+
 conda env create -f envs/environment_scgen.yml
+```
+
+```bash
+# 5b) create the scPRAM environment --------------------------------
+
 conda env create -f envs/environment_scpram.yml
 ```
 
 ```bash
-# F) (optional) enable GPU acceleration
+# F) (optional) add GPU support --------------------------------------
+
 if command -v nvidia-smi &>/dev/null; then
-  echo "🔍 NVIDIA GPU found – installing CUDA-enabled PyTorch"
-
-  # map NVIDIA *driver* → highest compatible CUDA toolkit
-  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
-        | head -n1 | cut -d. -f1)
-
+  echo "🔍  NVIDIA GPU found – installing CUDA‑enabled PyTorch"
+  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
   if   (( drv >= 550 )); then cuda=12.4
   elif (( drv >= 545 )); then cuda=12.3
   elif (( drv >= 535 )); then cuda=12.2
   elif (( drv >= 525 )); then cuda=12.1
   else                       cuda=11.8
   fi
-
   for env in scgen scpram; do
-    conda run -n "$env" \
-      conda install -y \
-        pytorch pytorch-cuda="$cuda" torchvision torchaudio \
-        -c pytorch -c nvidia
+    conda run -n "$env" conda install -y \
+      pytorch torchvision torchaudio pytorch-cuda="$cuda" \
+      -c pytorch -c nvidia
   done
   echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
 else
@@ -182,9 +201,10 @@ fi
 ```
 
 ```bash
-# G) launch Jupyter
-conda activate scgen   # swap to scpram to explore the other notebook
-jupyter-lab
+# 7) run Jupyter ------------------------------------------------------
+
+conda activate scgen   # or: conda activate scpram
+jupyter-lab            # opens in your browser – navigate to notebooks
 ```
 
 ---
@@ -203,9 +223,10 @@ Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrma
 
 ## ❓ Troubleshooting
 
-* **`conda: command not found`** – close & reopen the terminal (Conda adds itself to your shell profile).
+* **`conda: command not found`** – close & reopen the terminal; Conda was added to your shell profile by the installer.
 * **Port 8888 already in use** – run `jupyter-lab --port 8889` (any free port works).
 * **Web‑browser does not open automatically** – copy the full `http://localhost:8888/?token=…` link printed in the terminal into your browser.
+* **WSL says «kernel needs to be updated»** – open PowerShell as Admin ▸ `wsl --update`.
 
 If you are stuck, open an issue on the GitHub page or ask during the workshop (on July 14th 2025) – we are happy to help!
 
