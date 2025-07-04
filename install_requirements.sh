@@ -156,9 +156,10 @@ if command -v nvidia-smi &>/dev/null; then
     fi
 
     for ENV in scgen; do
-        "$CONDA_BIN" run -n "$ENV" \
-          "$CONDA_BIN" install -y pytorch torchvision torchaudio \
-                          pytorch-cuda="$CUDA_VER"               \
+        "$CONDA_BIN" run -n scgen \
+          "$CONDA_BIN" install -y \
+              pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
+              pytorch-cuda="$CUDA_VER" \
                           -c pytorch -c nvidia -c conda-forge
     done
 

@@ -203,7 +203,7 @@ if command -v nvidia-smi &>/dev/null; then
   for env in scgen; do
     $PKG_MGR run -n "$env" \
       $PKG_MGR install -y \
-        pytorch torchvision torchaudio pytorch-cuda="$cuda" \
+        pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda="$cuda" \
         -c pytorch -c nvidia -c conda-forge
   done
   echo "✅  GPU acceleration ready (CUDA $cuda) inside scGen only."
