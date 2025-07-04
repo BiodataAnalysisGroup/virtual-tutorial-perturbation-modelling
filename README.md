@@ -192,24 +192,21 @@ $PKG_MGR env create -f envs/environment_scpram.yml
 
 if command -v nvidia-smi &>/dev/null; then
   echo "🔍  NVIDIA GPU found – installing CUDA-enabled PyTorch"
-  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
-  if   (( drv >= 550 )); then cuda=12.4
-  elif (( drv >= 545 )); then cuda=12.3
-  elif (( drv >= 535 )); then cuda=12.2
-  elif (( drv >= 525 )); then cuda=12.1
-  else                       cuda=11.8
+  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
+        | head -n1 | cut -d. -f1)
+
+  # PyTorch binary wheels currently ship up to CUDA 12.1.
+  if (( drv >= 525 )); then cuda=12.1   # works for every RTX/Ampere+ card
+  else                       cuda=11.8  # fallback for older drivers
   fi
 
   for env in scgen scpram; do
     $PKG_MGR run -n "$env" \
       $PKG_MGR install -y \
         pytorch torchvision torchaudio pytorch-cuda="$cuda" \
-        -c pytorch -c nvidia
+        -c pytorch -c nvidia -c conda-forge
   done
   echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
-else
-  echo "ℹ️  No NVIDIA GPU detected – keeping CPU-only PyTorch."
-fi
 ```
 
 ```bash
