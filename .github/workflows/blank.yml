@@ -1,0 +1,24 @@
+# This workflow checks the integrity of the installation script used in this tutorial
+
+name: virtual-tutorial-perturbation-modelling CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check installation script
+        run: chmod +x install_requirements.sh && ./install_requirements.sh
