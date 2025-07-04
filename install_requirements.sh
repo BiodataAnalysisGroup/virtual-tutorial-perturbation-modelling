@@ -97,6 +97,7 @@ conda activate base
 info "⏳  Creating Conda environments (scgen & scpram) …"
 for YAML in envs/environment_scgen.yml envs/environment_scpram.yml; do
     ENV_NAME=$(grep '^name:' "$YAML" | awk '{print $2}')
+    info "   ➡️  Creating environment: $ENV_NAME"
     if conda info --envs | grep -qE "^\s*$ENV_NAME\s"; then
         info "   ✔️  Environment $ENV_NAME already exists – skipping."
     else
