@@ -4,9 +4,9 @@ name: virtual-tutorial-perturbation-modelling CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "gg-test" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "gg-test" ]
 
   workflow_dispatch:
 
