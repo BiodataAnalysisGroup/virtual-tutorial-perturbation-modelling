@@ -150,40 +150,42 @@ rm "$ZIP"
 # 4) install Miniconda (skip if you already have conda / mamba / micromamba) ----
 
 if ! (command -v conda || command -v mamba || command -v micromamba) &>/dev/null; then
+  # no package-manager found  →  install a *fresh* Miniconda under ~/miniconda3
   case "$(uname -s)-$(uname -m)" in
-    Darwin-arm64*) INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
-    Darwin-*)      INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh ;;
-    Linux-*)       INST=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  ;;
+    Darwin-arm64*) URL=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh ;;
+    Darwin-*)      URL=https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh ;;
+    Linux-*)       URL=https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh  ;;
   esac
-  curl -fsSL "$INST" -o miniconda.sh
+  curl -fsSL "$URL" -o miniconda.sh
   bash miniconda.sh -b -p "$HOME/miniconda3"
   rm miniconda.sh
   source "$HOME/miniconda3/etc/profile.d/conda.sh"
 else
+  # something is already installed – reuse it
   PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
   echo "✔️  Re-using existing tool: $PKG_MGR"
   source "$($PKG_MGR info --base)/etc/profile.d/conda.sh"
 fi
+
+# automatically pick the right binary for later steps
+PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
 ```
 
 ```bash
 # 5a) create the scGen environment ----------------------------------
 
-PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
 $PKG_MGR env create -f envs/environment_scgen.yml
 ```
 
 ```bash
 # 5b) create the scPRAM environment --------------------------------
 
-PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
 $PKG_MGR env create -f envs/environment_scpram.yml
 ```
 
 ```bash
 # 6) (optional) add GPU support --------------------------------------
 
-PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
 if command -v nvidia-smi &>/dev/null; then
   echo "🔍  NVIDIA GPU found – installing CUDA-enabled PyTorch"
   drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
@@ -193,6 +195,7 @@ if command -v nvidia-smi &>/dev/null; then
   elif (( drv >= 525 )); then cuda=12.1
   else                       cuda=11.8
   fi
+
   for env in scgen scpram; do
     $PKG_MGR run -n "$env" \
       $PKG_MGR install -y \
@@ -208,9 +211,8 @@ fi
 ```bash
 # 7) run Jupyter ------------------------------------------------------
 
-PKG_MGR=$(command -v conda || command -v mamba || command -v micromamba)
-$PKG_MGR activate scgen   # or: conda activate scpram
-jupyter-lab            # opens in your browser – navigate to notebooks
+$PKG_MGR activate scgen      # swap to scpram for the other notebook
+jupyter-lab                  # opens in your browser – navigate to notebooks
 ```
 
 ---

@@ -58,9 +58,9 @@ fi
 # 3) install  ▸ or ▸  reuse  Conda / Mamba / Micromamba
 # ────────────────────────────────
 MINICONDA_DIR="$HOME/miniconda3"
-CONDA_BIN=""                  # will hold the path to conda|mamba|micromamba
+CONDA_BIN=""           # will hold the full path to conda | mamba | micromamba
 
-# look for an existing package-manager first
+# 3a) first preference – look for any tool already on the current $PATH
 for CANDIDATE in conda mamba micromamba; do
     if command -v "$CANDIDATE" &>/dev/null; then
         CONDA_BIN=$(command -v "$CANDIDATE")
@@ -68,10 +68,21 @@ for CANDIDATE in conda mamba micromamba; do
     fi
 done
 
-if [[ -n $CONDA_BIN ]]; then                 # ───── reuse existing
-    CONDA_BASE="$($CONDA_BIN info --base)"
-    info "👍  Re-using existing $($CONDA_BIN --version | awk '{print $1}') at: $CONDA_BASE"
-else                                         # ───── install Miniconda
+# 3b) second preference – even if *not* on $PATH, reuse ~/miniconda3 if it exists
+if [[ -z $CONDA_BIN && -x "$MINICONDA_DIR/bin/conda" ]]; then
+    CONDA_BIN="$MINICONDA_DIR/bin/conda"
+    export PATH="$MINICONDA_DIR/bin:$PATH"
+fi
+
+# 3c) OPTIONAL extra-safety – bail out if the directory is half-installed
+if [[ -d $MINICONDA_DIR && -z $CONDA_BIN ]]; then
+    err "Found existing $MINICONDA_DIR but no usable Conda executable.
+⇢  Please delete or rename the folder, then re-run this script."
+    exit 1
+fi
+
+# 3d) install Miniconda only if we still have no package manager
+if [[ -z $CONDA_BIN ]]; then
     info "🚀  No Conda/Mamba detected – installing Miniconda under  $MINICONDA_DIR …"
 
     case "$(uname -s)-$(uname -m)" in
@@ -86,24 +97,24 @@ else                                         # ───── install Miniconda
     rm  /tmp/miniconda.sh
 
     CONDA_BIN="$MINICONDA_DIR/bin/conda"
-    CONDA_BASE="$MINICONDA_DIR"
 fi
 
-# make the chosen tool available in this shell and future log-ins
+# 3e) initialise the selected tool for *this* shell and future log-ins
+CONDA_BASE="$($CONDA_BIN info --base)"
 if [[ $CONDA_BIN == *"micromamba"* ]]; then
-    # micromamba has its own shell hook
     eval "$($CONDA_BIN shell hook -s bash)"
 else
     source "$CONDA_BASE/etc/profile.d/conda.sh"
 fi
-grep -qxF "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" "$HOME/.bashrc" \
+grep -qxF "source \"$CONDA_BASE/etc/profile.d/conda.sh\""  "$HOME/.bashrc" \
   || echo "source \"$CONDA_BASE/etc/profile.d/conda.sh\"" >>"$HOME/.bashrc"
 
-"$CONDA_BIN" activate base
+$CONDA_BIN activate base
 
 # ────────────────────────────────
 # 4) create tutorial environments *sequentially*
 # ────────────────────────────────
+export CONDA_EXTRACT_THREADS=1   # avoid rare multi-process extract crashes
 info "⏳  Creating Conda environments (scgen & scpram) …"
 for YAML in envs/environment_scgen.yml envs/environment_scpram.yml; do
     ENV_NAME=$(grep '^name:' "$YAML" | awk '{print $2}')
