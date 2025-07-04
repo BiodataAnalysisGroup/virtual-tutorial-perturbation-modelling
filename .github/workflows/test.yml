@@ -22,3 +22,4 @@ jobs:
 
       - name: Check installation script
         run: chmod +x install_requirements.sh && ./install_requirements.sh
+        shell: bash
