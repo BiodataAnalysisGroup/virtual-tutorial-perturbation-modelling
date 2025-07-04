@@ -106,16 +106,30 @@ done
 info "   ✔️  Environments ready."
 
 # ────────────────────────────────
-# 5) optional: install CUDA PyTorch
+# 5) optional: install CUDA-enabled PyTorch
 # ────────────────────────────────
 if command -v nvidia-smi &>/dev/null; then
     info "⚙️  NVIDIA GPU detected – installing CUDA-enabled PyTorch …"
-    DRIVER_MAJOR=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader | head -n1 | cut -d. -f1)
-    CUDA_VER=$(( DRIVER_MAJOR >= 525 ? 12 : 11 )).${DRIVER_MAJOR:+8}
+
+    # pick the highest CUDA toolkit that your driver supports
+    DRIVER_MAJOR=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
+                   | head -n1 | cut -d. -f1)
+
+    if   (( DRIVER_MAJOR >= 550 )); then CUDA_VER="12.4"
+    elif (( DRIVER_MAJOR >= 545 )); then CUDA_VER="12.3"
+    elif (( DRIVER_MAJOR >= 535 )); then CUDA_VER="12.2"
+    elif (( DRIVER_MAJOR >= 525 )); then CUDA_VER="12.1"
+    else                                CUDA_VER="11.8"
+    fi
+
     for ENV in scgen scpram; do
-        conda run -n "$ENV" conda install -y pytorch pytorch-cuda="$CUDA_VER" -c pytorch -c nvidia
+        conda run -n "$ENV" \
+          conda install -y pytorch pytorch-cuda="$CUDA_VER" \
+                          torchvision torchaudio           \
+                          -c pytorch -c nvidia
     done
-    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER)."
+
+    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER) for both envs."
 else
     warn "ℹ️  No NVIDIA GPU found – keeping CPU-only PyTorch."
 fi
