@@ -3,9 +3,11 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.11
+  - python=3.8
   - scanpy
   - optuna
   - jupyterlab      
   - ipywidgets  
   - pip
+  - pip:
+      - scpram

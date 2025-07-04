@@ -126,7 +126,7 @@ fi
 $ACTIVATOR activate base
 
 # ────────────────────────────────
-# 4a) create tutorial environments *sequentially*
+# 4) create tutorial environments *sequentially*
 # ────────────────────────────────
 export CONDA_EXTRACT_THREADS=1   # avoid rare multi-process extract crashes
 info "⏳  Creating Conda environments (scgen & scpram) …"
@@ -142,12 +142,6 @@ done
 info "   ✔️  Environments ready."
 
 # ────────────────────────────────
-# 4b) add scpram without its strict pins
-# ────────────────────────────────
-info "🔧  Installing scpram==0.0.3 (no-deps) into scpram environment …"
-"$CONDA_BIN" run -n scpram pip install --no-deps scpram==0.0.3
-
-# ────────────────────────────────
 # 5) optional: install CUDA-enabled PyTorch
 # ────────────────────────────────
 if command -v nvidia-smi &>/dev/null; then
@@ -161,16 +155,14 @@ if command -v nvidia-smi &>/dev/null; then
     else                                CUDA_VER="11.8"
     fi
 
-    for ENV in scgen scpram; do
+    for ENV in scgen; do
         "$CONDA_BIN" run -n "$ENV" \
-          "$CONDA_BIN" install -y --strict-channel-priority          \
-              "pytorch::pytorch"                                     \
-              "pytorch::torchvision"                                 \
-              "pytorch::torchaudio"                                  \
-              "nvidia::pytorch-cuda=$CUDA_VER"
+          "$CONDA_BIN" install -y pytorch torchvision torchaudio \
+                          pytorch-cuda="$CUDA_VER"               \
+                          -c pytorch -c nvidia -c conda-forge
     done
 
-    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER) for both envs."
+    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER) for scGen only."
 else
     warn "ℹ️  No NVIDIA GPU found – keeping CPU-only PyTorch."
 fi

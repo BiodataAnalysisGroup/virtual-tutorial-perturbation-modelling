@@ -200,15 +200,13 @@ if command -v nvidia-smi &>/dev/null; then
   else                       cuda=11.8  # fallback for older drivers
   fi
 
-  for env in scgen scpram; do
+  for env in scgen; do
     $PKG_MGR run -n "$env" \
-      $PKG_MGR install -y --strict-channel-priority \
-          "pytorch::pytorch"                                     \
-          "pytorch::torchvision"                                 \
-          "pytorch::torchaudio"                                  \
-          "nvidia::pytorch-cuda=$CUDA_VER"
+      $PKG_MGR install -y \
+        pytorch torchvision torchaudio pytorch-cuda="$cuda" \
+        -c pytorch -c nvidia -c conda-forge
   done
-  echo "✅  GPU acceleration ready (CUDA $cuda) inside both envs"
+  echo "✅  GPU acceleration ready (CUDA $cuda) inside scGen only."
 ```
 
 ```bash
