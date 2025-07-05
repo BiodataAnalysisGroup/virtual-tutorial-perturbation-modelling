@@ -1,36 +1,72 @@
 #!/usr/bin/env bash
 
-#git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
-#cd virtual-tutorial-pereturbation-modelling/
-
-## Data avaialble on Zenodo:
-# Gavriilidis, G., & Jagot, S. (2025). Perturbation_modelling_tutorial_ECCB2025 [Data set]. Zenodo. https://doi.org/10.5281/zenodo.15745452
-echo "Data is downloading from zenodo..."
-mkdir -p data
-curl -L -o ./data/Kang.zip https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip?download=1
-unzip -u data/kang.zip -d data/
-
-## Environmental setup script for MacOS/Linux
-# For Windows, please refer the README section
-
-# Python3 and Pip
-echo "$(python --version) is installed ✔️ & available in the location: $(which python)"
-echo "$(pip --version) is installed ✔️ & available in the location: $(which pip)"
-
-# if you get an error, try installing latest version of python from the (official website)[https://www.python.org/downloads/]
-
-## install Miniconda
-# Please refer this (site)[https://www.anaconda.com/docs/getting-started/miniconda/install] for any quries
-echo "Installing Miniconda ..."
+# Exit immediately on errors, unset variables, and pipe failures
 set -euo pipefail
 
-OS=$(uname -s)
-ARCH=$(uname -m)
+# Clone repository (uncomment to use)
+#git clone https://github.com/BiodataAnalysisGroup/virtual-tutorial-perturbation-modelling.git
+#cd virtual-tutorial-perturbation-modelling/ || { echo "Failed to enter directory"; exit 1; }
+
+# -------------------------------------------------------------------
+# Download and prepare data
+# -------------------------------------------------------------------
+echo "📦 Downloading data from Zenodo..."
+mkdir -p data
+
+DATA_URL="https://zenodo.org/records/15745452/files/zenodo_perturbations_ECCB2025.zip"
+ZIP_PATH="./data/perturbations_data.zip"
+
+if ! curl -L -o "$ZIP_PATH" "$DATA_URL"; then
+    echo "❌ Failed to download data"
+    exit 1
+fi
+
+if ! unzip -u "$ZIP_PATH" -d data/; then
+    echo "❌ Failed to unzip data"
+    exit 1
+fi
+
+echo "✅ Data successfully downloaded and extracted!"
+
+# -------------------------------------------------------------------
+# Verify Python and pip
+# -------------------------------------------------------------------
+echo "🐍 Verifying Python and pip installations..."
+if ! command -v python &> /dev/null; then
+    echo "❌ Python not found! Please install: https://www.python.org/downloads/"
+    exit 1
+fi
+
+if ! command -v pip &> /dev/null; then
+    echo "❌ pip not found! Please install pip."
+    exit 1
+fi
+
+echo "✔️ $(python --version) is installed"
+echo "✔️ $(pip --version) is installed"
+
+# -------------------------------------------------------------------
+# Install Miniconda
+# -------------------------------------------------------------------
+echo "🐍 Installing Miniconda..."
 MINICONDA_DIR="$HOME/miniconda3"
 
+# Remove existing installation if needed
+if [ -d "$MINICONDA_DIR" ]; then
+    echo "⚠️ Miniconda already exists at $MINICONDA_DIR"
+    read -rp "Overwrite existing installation? [y/N] " response
+    if [[ "$response" =~ ^[Yy] ]]; then
+        rm -rf "$MINICONDA_DIR"
+    else
+        echo "Using existing Miniconda installation"
+    fi
+fi
+
+# Determine OS and architecture
+OS=$(uname -s)
 case "$OS" in
     Darwin)
-        if [ "$ARCH" = "arm64" ]; then
+        if [ "$(uname -m)" = "arm64" ]; then
             URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-arm64.sh"
         else
             URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
@@ -40,45 +76,61 @@ case "$OS" in
         URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
         ;;
     *)
-	    echo "This OS is currently unsupported ✖️ (For Windows, please refer README.md)"
+        echo "❌ Unsupported OS: $OS"
+        echo "For Windows setup, please see README.md"
         exit 1
         ;;
 esac
 
-mkdir -p "$MINICONDA_DIR"
-curl -fsSL "$URL" -o "$MINICONDA_DIR/miniconda.sh"
-bash "$MINICONDA_DIR/miniconda.sh" -b -u -p "$MINICONDA_DIR"
-rm "$MINICONDA_DIR/miniconda.sh"
+# Download and install Miniconda
+INSTALLER="miniconda_installer.sh"
+curl -fsSL "$URL" -o "$INSTALLER"
+bash "$INSTALLER" -b -p "$MINICONDA_DIR"
+rm "$INSTALLER"
+
+# Initialize conda
 source "$MINICONDA_DIR/bin/activate"
+conda init bash
 
-## Conda environment setup
+echo "✅ Miniconda installed successfully!"
+
+# -------------------------------------------------------------------
+# Setup Conda environments
+# -------------------------------------------------------------------
+echo "🛠️ Creating conda environments..."
 conda clean --all -y
-conda env create -f envs/environment_scgen.yml &
-conda env create -f envs/environment_scpram.yml &
-wait
 
-echo "Environment setup complete!(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
+# Create environments sequentially for better error handling
+conda env create -f envs/environment_scgen.yml -n scgen
+conda env create -f envs/environment_scpram.yml -n scpram
 
-# Running scGen
-read -p "Do you want to run scGen?" ans
-case "$ans" in
-	[Yy]|[Yy][Ee][Ss])
-		conda activate scgen && jupyter notebook 1_scGen/scGen_Tutorial_ECCB2025.ipynb
-		;;
-	[Nn]|[Nn][Oo])
-		echo "Please open jupyter-notebook in your browser and run scGen_Tutorial_ECCB2025.ipynb"
-		;;
-esac
+echo "🎉 Environment setup complete! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
 
-# Running scPRAM
-read -p "Do you want to run scPRAM?" ans
-case "$ans" in
-	[Yy]|[Yy][Ee][Ss])
-		conda activate scpram && jupyter notebook 1_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb
-		;;
-	[Nn]|[Nn][Oo])
-		echo "Please open jupyter-notebook in your browser and run scPRAM_Tutorial_ECCB2025.ipynb"
-		;;
-esac
+# -------------------------------------------------------------------
+# Run tutorials
+# -------------------------------------------------------------------
+run_notebook() {
+    env_name="$1"
+    notebook_path="$2"
+    
+    if conda activate "$env_name"; then
+        echo "🚀 Starting Jupyter for $env_name..."
+        jupyter notebook "$notebook_path"
+    else
+        echo "❌ Failed to activate $env_name environment"
+    fi
+}
 
-echo "Have a lots of fun!... (^_^)"
+echo "\n-------------------------------------------"
+read -rp "Run scGen tutorial? [y/N] " run_scgen
+if [[ "$run_scgen" =~ ^[Yy] ]]; then
+    run_notebook "scgen" "1_scGen/scGen_Tutorial_ECCB2025.ipynb"
+fi
+
+echo "\n-------------------------------------------"
+read -rp "Run scPRAM tutorial? [y/N] " run_scpram
+if [[ "$run_scpram" =~ ^[Yy] ]]; then
+    run_notebook "scpram" "1_scPRAM/scPRAM_Tutorial_ECCB2025.ipynb"
+fi
+
+echo "\n✨ Have lots of fun exploring! (^_^) ✨"
