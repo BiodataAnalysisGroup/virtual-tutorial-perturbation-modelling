@@ -7,7 +7,6 @@ on:
     branches: [ "gg-test" ]
   pull_request:
     branches: [ "gg-test" ]
-
   workflow_dispatch:
 
 jobs:
@@ -20,6 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check installation script
-        run: chmod +x install_requirements.sh && ./install_requirements.sh
+      - name: Run installation script and save log
+        run: |
+          chmod +x install_requirements.sh
+          ./install_requirements.sh 2>&1 | tee install.log
         shell: bash
+
+      - name: Upload installation log
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-log-${{ matrix.os }}
+          path: install.log
