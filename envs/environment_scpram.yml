@@ -3,9 +3,29 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python=3.11
-  - scanpy
-  - optuna
-  - jupyterlab      
-  - ipywidgets  
-  - pip
+  - python=3.8
+  - pip>=20.3
+  - numpy>=1.18
+  - scipy>=1.5
+  - pandas>=1.1
+  - scikit-learn>=0.24
+  - matplotlib>=3.3
+  - seaborn>=0.11
+  - scanpy>=1.7
+  - anndata>=0.7
+  - statsmodels>=0.12
+  - tqdm>=4.50
+  - optuna>=2.10
+  - jupyterlab>=3.0
+  - ipywidgets>=7.6
+  - ipykernel>=5.3
+  - nbconvert>=6.0
+  - numba>=0.52
+  - llvmlite>=0.36  # Required for numba compatibility
+  - pip:
+      - scpram>=1.0.0
+      - harmonypy>=0.0.5
+      - scikit-misc>=0.1.4
+      - umap-learn>=0.5  # For dimensionality reduction
+      - leidenalg>=0.8  # For clustering
+      - python-igraph>=0.9  # Graph processing
