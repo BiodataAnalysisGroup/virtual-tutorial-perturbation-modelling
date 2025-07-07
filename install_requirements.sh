@@ -142,34 +142,7 @@ done
 info "   ✔️  Environments ready."
 
 # ────────────────────────────────
-# 5) optional: install CUDA-enabled PyTorch
-# ────────────────────────────────
-if command -v nvidia-smi &>/dev/null; then
-    info "⚙️  NVIDIA GPU detected – installing CUDA-enabled PyTorch …"
-
-    # pick the highest CUDA toolkit that your driver supports that is compatible with PyTorch
-    DRIVER_MAJOR=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
-                   | head -n1 | cut -d. -f1)
-
-    if   (( DRIVER_MAJOR >= 525 )); then CUDA_VER="12.1"   # compatible & available
-    else                                CUDA_VER="11.8"
-    fi
-
-    for ENV in scgen; do
-        "$CONDA_BIN" run -n scgen \
-          "$CONDA_BIN" install -y \
-              pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 \
-              pytorch-cuda="$CUDA_VER" \
-                          -c pytorch -c nvidia -c conda-forge
-    done
-
-    info "   ✔️  GPU acceleration ready (CUDA $CUDA_VER) for scGen only."
-else
-    warn "ℹ️  No NVIDIA GPU found – keeping CPU-only PyTorch."
-fi
-
-# ────────────────────────────────
-# 6) optional: launch notebooks
+# 5) optional: launch notebooks
 # ────────────────────────────────
 read -rp "▶️  Launch scGen notebook now? [y/N] " run
 if [[ $run =~ ^[Yy]$ ]]; then

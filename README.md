@@ -72,9 +72,8 @@ chmod +x install_requirements.sh
 
 This will take a while - the script will:
 * download **six 〈\*.h5ad〉 files** (\~850 MB) into `data/`,
-* install **Miniconda** (skipped if **any** Conda-compatible tool – Conda, Mamba or Micromamba – is already on your system),
-* build the **`scgen`** and **`scpram`** envs and
-* look for an **NVIDIA GPU** – if present and supported, CUDA‑enabled PyTorch is installed automatically.
+* install **Miniconda** (skipped if **any** Conda-compatible tool – Conda, Mamba or Micromamba – is already on your system) and
+* build the **`scgen`** and **`scpram`** envs
 
 At the end answer **Y** to start Jupyter right away **or** press **N** and read “Usage once installed” below.
 
@@ -188,29 +187,7 @@ $PKG_MGR env create -f envs/environment_scpram.yml
 ```
 
 ```bash
-# 6) (optional) add GPU support --------------------------------------
-
-if command -v nvidia-smi &>/dev/null; then
-  echo "🔍  NVIDIA GPU found – installing CUDA-enabled PyTorch"
-  drv=$(nvidia-smi --query-gpu=driver_version --format=csv,noheader \
-        | head -n1 | cut -d. -f1)
-
-  # PyTorch binary wheels currently ship up to CUDA 12.1.
-  if (( drv >= 525 )); then cuda=12.1   # works for every RTX/Ampere+ card
-  else                       cuda=11.8  # fallback for older drivers
-  fi
-
-  for env in scgen; do
-    $PKG_MGR run -n "$env" \
-      $PKG_MGR install -y \
-        pytorch==2.5.1 torchvision==0.20.1 torchaudio==2.5.1 pytorch-cuda="$cuda" \
-        -c pytorch -c nvidia -c conda-forge
-  done
-  echo "✅  GPU acceleration ready (CUDA $cuda) inside scGen only."
-```
-
-```bash
-# 7) run Jupyter ------------------------------------------------------
+# 6) run Jupyter ------------------------------------------------------
 
 $PKG_MGR activate scgen      # swap to scpram for the other notebook
 jupyter-lab                  # opens in your browser – navigate to notebooks
