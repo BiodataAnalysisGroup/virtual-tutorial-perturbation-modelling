@@ -220,6 +220,19 @@ Navigate in the Jupyter file‑browser to `1_scGen/`, `2_scPRAM/` or `3_Benchrma
 * **Port 8888 already in use** – run `jupyter-lab --port 8889` (any free port works).
 * **Web‑browser does not open automatically** – copy the full `http://localhost:8888/?token=…` link printed in the terminal into your browser.
 * **WSL says «kernel needs to be updated»** – open PowerShell as Admin ▸ `wsl --update`.
+* **“Download from Zenodo fails or is very slow”** –  
+  1. Open a terminal **inside the repository root** (where you already see the `install_requirements.sh` script).  
+  2. Install the tiny Google-Drive helper once:  
+     ```bash
+     python -m pip install --quiet --upgrade gdown
+     ```  
+  3. Fetch the pre-zipped tutorial data (≈ 850 MB) from the temporary ECCB Drive mirror **directly into `data/`** and unzip it:  
+     ```bash
+     gdown --id 1wWd7hBaFbP3CHjsGrnwVEHN84pId6nbo \
+           --output data/ECCB2025_material_2025.zip --no-cookies
+     unzip -q data/ECCB2025_material_2025.zip -d data/
+     rm    data/ECCB2025_material_2025.zip        # free the space
+     ```  
 
 If you are stuck, open an issue on the GitHub page or ask during the workshop (on July 14th 2025) – we are happy to help!
 
